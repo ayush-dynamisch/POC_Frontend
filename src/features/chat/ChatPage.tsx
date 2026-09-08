@@ -1,9 +1,41 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { chatApi, type BackendConversation } from '../../services/api';
-import { useChatStream } from './useChatStream';
+import { useJobStream } from '../../hooks/useJobStream';
 import { STEP_LABELS } from '../../types/events';
-import type { ChatMessage } from '../../types';
+import type { ChatMessage, Citation } from '../../types';
+
+// Maps a raw backend citation (string or dict — shape varies by kind: RAG/D1
+// policy hits carry source/reference/confidence, registry & compliance-finding
+// citations add an explanatory text/degraded flag) into the full Citation type,
+// keeping every field the backend actually sends instead of discarding them.
+function mapCitation(c: any, fallbackTitle = 'Citation'): Citation {
+  if (typeof c === 'string') {
+    return { title: c, sourceType: 'Policy' };
+  }
+
+  const source: string | undefined = c.source;
+  let sourceType: Citation['sourceType'] = c.source_type;
+  if (!sourceType) {
+    if (source?.startsWith('policy')) sourceType = 'Policy';
+    else if (source?.startsWith('ocr')) sourceType = 'Document';
+    else if (source === 'memory') sourceType = 'Memory';
+    else if (source) sourceType = 'Registry';
+    else sourceType = 'Policy';
+  }
+
+  return {
+    title: c.title || c.citation || fallbackTitle,
+    sourceType,
+    uri: c.uri,
+    source,
+    reference: c.reference,
+    confidence: typeof c.confidence === 'number' ? c.confidence : undefined,
+    text: c.text,
+    chunkId: c.chunk_id,
+    degraded: c.degraded
+  };
+}
 
 export const ChatPage: React.FC = () => {
   const [conversations, setConversations] = useState<BackendConversation[]>([]);
@@ -13,9 +45,10 @@ export const ChatPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [citationDetail, setCitationDetail] = useState<Citation | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { liveSteps, startStream, cancelStream } = useChatStream();
+  const { liveSteps, startStream, cancelStream } = useJobStream();
 
   // Abort any open stream if the user navigates away mid-response.
   useEffect(() => {
@@ -53,10 +86,7 @@ export const ChatPage: React.FC = () => {
           sender: m.role === 'user' ? 'user' : 'assistant',
           content: m.content,
           timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          citations: (m.citations || []).map((c: any) => ({
-            title: typeof c === 'string' ? c : c.title || c.citation || 'Policy Citation',
-            sourceType: c.source_type || 'Policy'
-          })),
+          citations: (m.citations || []).map((c: any) => mapCitation(c, 'Policy Citation')),
           reasoningPath: m.agent_run_id ? `Orchestration Job: ${m.agent_run_id.substring(0, 8)}` : undefined
         }));
         setMessages(mapped);
@@ -126,10 +156,7 @@ export const ChatPage: React.FC = () => {
           sender: 'assistant',
           content: response.answer,
           timestamp: 'Just now',
-          citations: (response.citations || []).map((c: any) => ({
-            title: typeof c === 'string' ? c : c.title || c.citation || 'Citation',
-            sourceType: 'Policy'
-          })),
+          citations: (response.citations || []).map((c: any) => mapCitation(c)),
           reasoningPath: response.plan ? `Plan: ${response.plan.join(' → ')}` : undefined,
           reportCard: response.report_id
             ? {
@@ -154,10 +181,7 @@ export const ChatPage: React.FC = () => {
             sender: 'assistant',
             content: output.answer || 'Execution completed.',
             timestamp: 'Just now',
-            citations: (output.citations || []).map((c: any) => ({
-              title: typeof c === 'string' ? c : c.title || c.citation || 'Citation',
-              sourceType: 'Policy'
-            })),
+            citations: (output.citations || []).map((c: any) => mapCitation(c)),
             reasoningPath: output.plan ? `Plan: ${output.plan.join(' → ')}` : undefined,
             reportCard: output.report_id
               ? {
@@ -376,13 +400,15 @@ export const ChatPage: React.FC = () => {
                     {msg.citations && msg.citations.length > 0 && (
                       <div className="flex flex-wrap gap-2 pt-1">
                         {msg.citations.map((c, i) => (
-                          <div
+                          <button
                             key={i}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#eff4ff] text-[#0a6659] text-[11px] font-medium border border-[#d3e4fe]"
+                            type="button"
+                            onClick={() => setCitationDetail(c)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#eff4ff] hover:bg-[#d3e4fe] text-[#0a6659] text-[11px] font-medium border border-[#d3e4fe] transition-colors cursor-pointer"
                           >
                             <span className="material-symbols-outlined text-[13px]">book</span>
                             <span>{c.title}</span>
-                          </div>
+                          </button>
                         ))}
                       </div>
                     )}
@@ -472,6 +498,85 @@ export const ChatPage: React.FC = () => {
           </form>
         </div>
       </div>
+
+      {/* Citation Detail Modal */}
+      {citationDetail && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border border-[#CBD5E1] space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#eff4ff] text-[#0a6659] text-[10px] font-bold uppercase tracking-wider border border-[#d3e4fe]">
+                  {citationDetail.sourceType}
+                </span>
+                <h3 className="font-heading font-bold text-base text-[#0b1c30] mt-2">{citationDetail.title}</h3>
+              </div>
+              <button
+                onClick={() => setCitationDetail(null)}
+                className="text-[#6f7976] hover:text-[#0b1c30] cursor-pointer shrink-0"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {citationDetail.text && (
+                <div className="p-3 bg-[#f8f9ff] border border-[#E2E8F0] rounded-lg text-[#0b1c30] leading-relaxed">
+                  {citationDetail.text}
+                </div>
+              )}
+
+              {citationDetail.degraded && (
+                <div className="flex items-center gap-1.5 text-[#9a6700] bg-[#fff8e1] border border-[#f5deb3] rounded-lg px-2.5 py-1.5">
+                  <span className="material-symbols-outlined text-[14px]">warning</span>
+                  <span>Source data may be stale or degraded.</span>
+                </div>
+              )}
+
+              {typeof citationDetail.confidence === 'number' && (
+                <div className="flex justify-between items-center py-1 border-b border-[#E2E8F0]">
+                  <span className="text-[#6f7976]">Confidence</span>
+                  <span className="font-mono text-[#0b1c30] font-bold">
+                    {Math.round(citationDetail.confidence * 100)}%
+                  </span>
+                </div>
+              )}
+
+              {citationDetail.source && (
+                <div className="flex justify-between items-center py-1 border-b border-[#E2E8F0] gap-3">
+                  <span className="text-[#6f7976] shrink-0">Source</span>
+                  <span className="font-mono text-[#0b1c30] truncate">{citationDetail.source}</span>
+                </div>
+              )}
+
+              {citationDetail.reference && (
+                <div className="flex justify-between items-center py-1 border-b border-[#E2E8F0] gap-3">
+                  <span className="text-[#6f7976] shrink-0">Reference</span>
+                  <span className="font-mono text-[#0b1c30] truncate">{citationDetail.reference}</span>
+                </div>
+              )}
+
+              {citationDetail.chunkId && (
+                <div className="flex justify-between items-center py-1 gap-3">
+                  <span className="text-[#6f7976] shrink-0">Chunk ID</span>
+                  <span className="font-mono text-[#0b1c30] truncate">{citationDetail.chunkId}</span>
+                </div>
+              )}
+
+              {citationDetail.uri && (
+                <a
+                  href={citationDetail.uri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-[#0a6659] hover:underline font-semibold"
+                >
+                  <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                  View source
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
