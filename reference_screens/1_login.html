@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MediVerify - Sign In</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "on-error-container": "#93000a",
+                "on-error": "#ffffff",
+                "tertiary-fixed-dim": "#ffb59d",
+                "surface-container-low": "#eff4ff",
+                "primary-container": "#0a6659",
+                "surface-container-high": "#dce9ff",
+                "on-secondary-fixed-variant": "#3f4947",
+                "on-tertiary": "#ffffff",
+                "on-surface-variant": "#3f4946",
+                "tertiary-container": "#884934",
+                "on-primary-fixed": "#00201b",
+                "secondary-container": "#d8e2e0",
+                "outline": "#6f7976",
+                "primary-fixed-dim": "#88d5c4",
+                "on-secondary": "#ffffff",
+                "surface-container": "#e5eeff",
+                "secondary-fixed-dim": "#bfc9c7",
+                "error": "#ba1a1a",
+                "surface-bright": "#f8f9ff",
+                "inverse-surface": "#213145",
+                "secondary-fixed": "#dbe5e3",
+                "surface-variant": "#d3e4fe",
+                "tertiary": "#6b321f",
+                "secondary": "#57605f",
+                "outline-variant": "#bec9c5",
+                "on-primary": "#ffffff",
+                "background": "#f8f9ff",
+                "tertiary-fixed": "#ffdbd0",
+                "surface": "#f8f9ff",
+                "on-tertiary-fixed-variant": "#703623",
+                "inverse-on-surface": "#eaf1ff",
+                "inverse-primary": "#88d5c4",
+                "surface-dim": "#cbdbf5",
+                "on-primary-fixed-variant": "#005046",
+                "on-primary-container": "#94e1d0",
+                "primary-fixed": "#a4f1e0",
+                "on-secondary-fixed": "#141d1c",
+                "on-surface": "#0b1c30",
+                "error-container": "#ffdad6",
+                "on-background": "#0b1c30",
+                "on-tertiary-fixed": "#390c01",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-container": "#ffc5b3",
+                "primary": "#004c42",
+                "on-secondary-container": "#5b6563",
+                "surface-tint": "#136a5d",
+                "surface-container-highest": "#d3e4fe"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+              },
+              "spacing": {
+                "gutter": "24px",
+                "container-max": "1280px",
+                "unit": "8px",
+                "margin-mobile": "16px",
+                "margin-desktop": "32px"
+              },
+              "fontFamily": {
+                "label-sm": [
+                  "Plus Jakarta Sans"
+                ],
+                "body-lg": [
+                  "Plus Jakarta Sans"
+                ],
+                "headline-lg-mobile": [
+                  "Plus Jakarta Sans"
+                ],
+                "label-md": [
+                  "Plus Jakarta Sans"
+                ],
+                "body-md": [
+                  "Plus Jakarta Sans"
+                ],
+                "display-lg": [
+                  "Plus Jakarta Sans"
+                ],
+                "headline-md": [
+                  "Plus Jakarta Sans"
+                ],
+                "headline-lg": [
+                  "Plus Jakarta Sans"
+                ]
+              },
+              "fontSize": {
+                "label-sm": [
+                  "12px",
+                  {
+                    "lineHeight": "1.4",
+                    "fontWeight": "500"
+                  }
+                ],
+                "body-lg": [
+                  "18px",
+                  {
+                    "lineHeight": "1.6",
+                    "fontWeight": "400"
+                  }
+                ],
+                "headline-lg-mobile": [
+                  "24px",
+                  {
+                    "lineHeight": "1.3",
+                    "fontWeight": "700"
+                  }
+                ],
+                "label-md": [
+                  "14px",
+                  {
+                    "lineHeight": "1.4",
+                    "letterSpacing": "0.01em",
+                    "fontWeight": "600"
+                  }
+                ],
+                "body-md": [
+                  "16px",
+                  {
+                    "lineHeight": "1.6",
+                    "fontWeight": "400"
+                  }
+                ],
+                "display-lg": [
+                  "48px",
+                  {
+                    "lineHeight": "1.2",
+                    "letterSpacing": "-0.02em",
+                    "fontWeight": "700"
+                  }
+                ],
+                "headline-md": [
+                  "24px",
+                  {
+                    "lineHeight": "1.4",
+                    "fontWeight": "600"
+                  }
+                ],
+                "headline-lg": [
+                  "32px",
+                  {
+                    "lineHeight": "1.25",
+                    "letterSpacing": "-0.01em",
+                    "fontWeight": "700"
+                  }
+                ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .split-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        .left-panel {
+            flex: 0 0 55%;
+            background-color: #0a6659;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px;
+        }
+        .right-panel {
+            flex: 1;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 48px;
+        }
+        @media (max-width: 1024px) {
+            .split-layout {
+                flex-direction: column;
+            }
+            .left-panel, .right-panel {
+                flex: 1 1 auto;
+                width: 100%;
+                padding: 32px 16px;
+            }
+            .left-panel {
+                min-height: 400px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+<div class="split-layout">
+<!-- LEFT PANEL -->
+<div class="left-panel">
+<!-- Brand Top Left -->
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-4xl text-on-primary">shield_locked</span>
+<span class="font-headline-md text-headline-md text-on-primary">MediVerify</span>
+</div>
+<!-- Center Content -->
+<div class="max-w-xl mx-auto my-12 lg:my-0 lg:text-left text-center">
+<h1 class="font-display-lg text-display-lg text-on-primary mb-6" style="font-size: 36px; line-height: 1.2;">
+                    Compliance Intelligence for Healthcare
+                </h1>
+<p class="font-body-md text-body-md text-on-primary opacity-80 max-w-md mx-auto lg:mx-0">
+                    AI-powered credential verification and compliance tracking
+                </p>
+</div>
+<!-- Bottom Badges -->
+<div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+<div class="px-4 py-2 border border-on-primary/30 rounded-full flex items-center gap-2 bg-on-primary/10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-on-primary text-sm">verified_user</span>
+<span class="font-label-sm text-label-sm text-on-primary">HIPAA Compliant</span>
+</div>
+<div class="px-4 py-2 border border-on-primary/30 rounded-full flex items-center gap-2 bg-on-primary/10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-on-primary text-sm">security</span>
+<span class="font-label-sm text-label-sm text-on-primary">SOC 2 Type II</span>
+</div>
+<div class="px-4 py-2 border border-on-primary/30 rounded-full flex items-center gap-2 bg-on-primary/10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-on-primary text-sm">lock</span>
+<span class="font-label-sm text-label-sm text-on-primary">256-bit Encrypted</span>
+</div>
+</div>
+</div>
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+<div class="w-full max-w-md">
+<!-- Mobile Logo (visible only on mobile) -->
+<div class="lg:hidden flex items-center justify-center gap-3 mb-8">
+<span class="material-symbols-outlined text-3xl text-primary-container">shield_locked</span>
+</div>
+<div class="text-center mb-8">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2" style="font-size: 28px;">
+                        Sign in to your workspace
+                    </h2>
+<p class="font-body-md text-body-md text-secondary">
+                        Enter your credentials to continue
+                    </p>
+</div>
+<form class="space-y-6">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="email">Work Email</label>
+<input class="w-full px-4 py-3 border border-outline-variant rounded-DEFAULT bg-surface-lowest text-on-surface focus:border-primary-container focus:ring-2 focus:ring-secondary-container transition-all outline-none" id="email" placeholder="you@hospital.org" type="email"/>
+</div>
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="block font-label-md text-label-md text-on-surface" for="password">Password</label>
+<a class="font-label-sm text-label-sm text-primary-container hover:underline" href="#">Forgot password?</a>
+</div>
+<div class="relative">
+<input class="w-full px-4 py-3 border border-outline-variant rounded-DEFAULT bg-surface-lowest text-on-surface focus:border-primary-container focus:ring-2 focus:ring-secondary-container transition-all outline-none pr-10" id="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<button class="w-full py-3 bg-primary-container text-on-primary font-label-md text-label-md rounded-DEFAULT hover:bg-surface-tint transition-colors shadow-sm active:scale-[0.98]" type="button">
+                        Sign In
+                    </button>
+</form>
+<div class="relative my-8">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant"></div>
+</div>
+<div class="relative flex justify-center text-sm">
+<span class="px-2 bg-white text-secondary font-label-sm text-label-sm">or</span>
+</div>
+</div>
+<button class="w-full py-3 border-2 border-outline-variant text-on-surface font-label-md text-label-md rounded-DEFAULT hover:bg-surface-container-low transition-colors flex items-center justify-center gap-3" type="button">
+<img alt="" class="w-5 h-5 object-contain" data-alt="Microsoft logo icon representing single sign-on integration for enterprise compliance software." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsZTd5Wag1yWuzMPo5kfAoaZNxEONlpoD-_rXddUokYQ9pPHLapqO2gOQ7i6mnX4xTqwgcgRIhSr49A_bDTYBQ2IbXowLAlg0CGn4pEiirV5PaRpQrBTdadXTBLlSYjDWnaUeeZlt8lmdRHrGfMVlYBgcEI_wy2Ui1qagNbSUGk9GtsEfhy6i2Ls91CroSzwhVA17Lsgqa8eqdVirbZwfCqKvucC_TMlxWtxwx0kv41hUjzRBgjDj4EKBGg6UBcE-4WMtE2o32Opw"/>
+                    Continue with Microsoft SSO
+                </button>
+<p class="mt-8 text-center font-label-sm text-label-sm text-secondary">
+                    By signing in you agree to your organization's <a class="text-primary-container hover:underline" href="#">compliance policies</a>.
+                </p>
+</div>
+</div>
+</div>
+</body></html>

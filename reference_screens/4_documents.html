@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MediVerify - Documents</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed-variant": "#005046",
+            "on-secondary": "#ffffff",
+            "error-container": "#ffdad6",
+            "secondary-fixed": "#dbe5e3",
+            "tertiary-fixed-dim": "#ffb59d",
+            "surface": "#f8f9ff",
+            "secondary-container": "#d8e2e0",
+            "on-tertiary-container": "#ffc5b3",
+            "on-secondary-fixed": "#141d1c",
+            "error": "#ba1a1a",
+            "surface-container-low": "#eff4ff",
+            "inverse-surface": "#213145",
+            "background": "#f8f9ff",
+            "tertiary": "#6b321f",
+            "on-secondary-container": "#5b6563",
+            "surface-container-high": "#dce9ff",
+            "secondary": "#57605f",
+            "on-secondary-fixed-variant": "#3f4947",
+            "on-surface": "#0b1c30",
+            "surface-container-highest": "#d3e4fe",
+            "surface-container-lowest": "#ffffff",
+            "outline-variant": "#bec9c5",
+            "on-primary-container": "#94e1d0",
+            "primary": "#004c42",
+            "inverse-on-surface": "#eaf1ff",
+            "on-primary": "#ffffff",
+            "surface-tint": "#136a5d",
+            "tertiary-container": "#884934",
+            "on-surface-variant": "#3f4946",
+            "tertiary-fixed": "#ffdbd0",
+            "primary-fixed-dim": "#88d5c4",
+            "on-background": "#0b1c30",
+            "surface-dim": "#cbdbf5",
+            "primary-fixed": "#a4f1e0",
+            "surface-variant": "#d3e4fe",
+            "surface-bright": "#f8f9ff",
+            "surface-container": "#e5eeff",
+            "on-tertiary-fixed-variant": "#703623",
+            "on-error": "#ffffff",
+            "on-error-container": "#93000a",
+            "outline": "#6f7976",
+            "inverse-primary": "#88d5c4",
+            "on-primary-fixed": "#00201b",
+            "primary-container": "#0a6659",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-fixed": "#390c01",
+            "secondary-fixed-dim": "#bfc9c7"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-mobile": "16px",
+            "gutter": "24px",
+            "container-max": "1280px",
+            "margin-desktop": "32px",
+            "unit": "8px"
+          },
+          "fontFamily": {
+            "body-lg": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "display-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+            "label-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "500"}],
+            "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+            "headline-lg": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+            "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "600"}],
+            "headline-lg-mobile": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+            "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex">
+<!-- SideNavBar Component -->
+<aside class="bg-surface-container-lowest dark:bg-surface-container-low h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-outline flex flex-col h-full py-margin-desktop px-4 z-20">
+<div class="mb-8 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
+</div>
+<div>
+<h1 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed m-0 leading-tight">MediVerify</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant m-0">Healthcare Compliance</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface hover:bg-surface-container-high transition-colors hover:bg-secondary-fixed dark:hover:bg-on-primary-fixed-variant transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary">dashboard</span>
+        Dashboard
+      </a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface hover:bg-surface-container-high transition-colors hover:bg-secondary-fixed dark:hover:bg-on-primary-fixed-variant transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary">medical_services</span>
+        Clinicians
+      </a>
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container dark:bg-primary-container text-primary dark:text-on-primary-container font-bold rounded-lg transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+        Documents
+      </a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface hover:bg-surface-container-high transition-colors hover:bg-secondary-fixed dark:hover:bg-on-primary-fixed-variant transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary">chat</span>
+        Chat
+      </a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface hover:bg-surface-container-high transition-colors hover:bg-secondary-fixed dark:hover:bg-on-primary-fixed-variant transition-all duration-200 ease-in-out font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary">assessment</span>
+        Reports
+      </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant px-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden">
+<img alt="MediVerify Logo" class="w-full h-full object-cover" data-alt="A small square profile picture of a professional healthcare administrator in a bright, modern office setting with a teal and white color theme. The lighting is soft and even." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_qQreQN5PAbFjunKYQUZB2mX6IPDPIzMEV3nHvEaw7xyu8HZ55wMO4K3COF7nTigObHDShe2ZiOdmmo32nrNyQKvcz3tI3GYa4uQJ6Iw0jF-akM2n03rYXZ66puUmIRhfjBhIV5xhuC0PpHe-1OxFou8HfCgibTad0LFODCrzd4NNiNCmktWd0HzbRW5BuLGyAgADWvC-oJaT_zUI1vyo9l1DfIEMvvOqkiPBLmcOvEbkVG8mLhf1TLXiDYFz3xgtVug0PtJuJ1A"/>
+</div>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface">Admin User</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">View Profile</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<!-- TopAppBar equivalent (merged into header conceptually, keeping minimal shell) -->
+<header class="h-16 px-margin-desktop flex justify-between items-center bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-10 hidden md:flex">
+<div class="flex-1">
+<!-- Search Placeholder -->
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors focus-within:ring-2 focus-within:ring-primary/20 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors focus-within:ring-2 focus-within:ring-primary/20 rounded-full">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-margin-desktop flex flex-col gap-gutter max-w-container-max mx-auto w-full">
+<!-- Page Header -->
+<div class="mb-2">
+<h2 class="text-[26px] font-headline-lg font-bold text-on-surface mb-2 tracking-tight">Documents</h2>
+<p class="text-body-md text-on-surface-variant">Upload credential documents and review AI-flagged checks</p>
+</div>
+<!-- Upload Card -->
+<section class="bg-surface-container-lowest border border-[#E2E8F0] rounded-xl p-6 shadow-sm hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] transition-shadow duration-300">
+<h3 class="text-headline-md font-headline-md text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">upload_file</span>
+            Upload Credential Document
+        </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+<!-- Clinician Dropdown -->
+<div class="flex flex-col gap-2">
+<label class="text-label-md font-label-md text-on-surface-variant">Clinician</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-bright border border-[#CBD5E1] rounded-lg py-3 px-4 text-on-surface focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20 transition-all cursor-pointer">
+<option selected="">Sandra Okafor — Nurse</option>
+<option>James Morris — Nurse</option>
+<option>Dr. Amy Patel — Physician</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Credential Type Dropdown -->
+<div class="flex flex-col gap-2">
+<label class="text-label-md font-label-md text-on-surface-variant">Credential Type</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-bright border border-[#CBD5E1] rounded-lg py-3 px-4 text-on-surface focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20 transition-all cursor-pointer">
+<option selected="" value="rn_license">rn_license</option>
+<option value="md_license">md_license</option>
+<option value="dea_registration">dea_registration</option>
+<option value="bls">bls</option>
+<option value="acls">acls</option>
+<option value="hipaa_training">hipaa_training</option>
+<option value="vaccination">vaccination</option>
+<option value="other">other</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<!-- File Picker -->
+<div class="flex flex-col gap-2">
+<label class="text-label-md font-label-md text-on-surface-variant">File</label>
+<button class="w-full flex items-center justify-between bg-surface-container-low border border-[#CBD5E1] border-dashed rounded-lg py-3 px-4 text-on-surface hover:bg-surface-container transition-colors focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20">
+<span class="text-body-md truncate mr-2">CA_RN_License_2024.pdf</span>
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-t border-[#E2E8F0] pt-6">
+<p class="text-label-sm text-on-surface-variant flex items-start gap-2 max-w-2xl">
+<span class="material-symbols-outlined text-outline text-[18px]">info</span>
+                AI will extract fields, run document checks, and query the issuing registry. Usually completes in 30–60 seconds.
+            </p>
+<button class="bg-primary-container hover:bg-on-primary-fixed-variant text-on-primary px-6 py-3 rounded-lg font-label-md transition-colors flex items-center gap-2 whitespace-nowrap shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
+                Upload &amp; Verify
+            </button>
+</div>
+</section>
+<!-- Review Queue Card -->
+<section class="bg-surface-container-lowest border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden flex flex-col">
+<!-- Header -->
+<div class="p-6 border-b border-[#E2E8F0] bg-surface-bright flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<h3 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 1;">rule</span>
+                    AI Review Queue
+                </h3>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-label-sm font-label-md">
+                    3 pending
+                </span>
+</div>
+<p class="text-body-md text-on-surface-variant">These document checks scored below the confidence threshold and need your decision.</p>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead>
+<tr class="bg-[#F1F5F9] border-b border-[#E2E8F0]">
+<th class="py-4 px-6 text-label-md font-bold text-on-surface">Clinician</th>
+<th class="py-4 px-6 text-label-md font-bold text-on-surface">Document</th>
+<th class="py-4 px-6 text-label-md font-bold text-on-surface">Check Type</th>
+<th class="py-4 px-6 text-label-md font-bold text-on-surface w-1/4">AI Finding</th>
+<th class="py-4 px-6 text-label-md font-bold text-on-surface">Confidence</th>
+<th class="py-4 px-6 text-label-md font-bold text-on-surface">Submitted</th>
+<th class="py-4 px-6 text-label-md font-bold text-on-surface text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#E2E8F0] bg-surface-container-lowest">
+<!-- Row 1 -->
+<tr class="hover:bg-surface transition-colors group">
+<td class="py-4 px-6 text-body-md font-medium text-on-surface whitespace-nowrap">Sandra Okafor</td>
+<td class="py-4 px-6 text-body-md text-secondary whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">picture_as_pdf</span>
+                                CA_RN_License.pdf
+                            </div>
+</td>
+<td class="py-4 px-6 text-body-md text-on-surface whitespace-nowrap">OCR Quality</td>
+<td class="py-4 px-6 text-body-md text-error flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] mt-0.5">warning</span>
+                            Text partially unreadable in expiry field
+                        </td>
+<td class="py-4 px-6 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container w-[61%]"></div>
+</div>
+<span class="text-label-sm font-bold text-tertiary-container">61%</span>
+</div>
+</td>
+<td class="py-4 px-6 text-body-md text-on-surface-variant whitespace-nowrap">2h ago</td>
+<td class="py-4 px-6 text-right whitespace-nowrap space-x-2">
+<button class="inline-flex items-center justify-center border border-primary-container text-primary-container hover:bg-primary-container hover:text-on-primary px-3 py-1.5 rounded-lg transition-colors font-label-sm bg-transparent">
+                                Approve
+                            </button>
+<button class="inline-flex items-center justify-center border border-error text-error hover:bg-error hover:text-on-error px-3 py-1.5 rounded-lg transition-colors font-label-sm bg-transparent">
+                                Reject
+                            </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface transition-colors group">
+<td class="py-4 px-6 text-body-md font-medium text-on-surface whitespace-nowrap">James Morris</td>
+<td class="py-4 px-6 text-body-md text-secondary whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">image</span>
+                                BLS_Card_2024.jpg
+                            </div>
+</td>
+<td class="py-4 px-6 text-body-md text-on-surface whitespace-nowrap">Face Match</td>
+<td class="py-4 px-6 text-body-md text-error flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] mt-0.5">warning</span>
+                            Face match score below threshold (0.74)
+                        </td>
+<td class="py-4 px-6 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-[#EAB308] w-[74%]"></div>
+</div>
+<span class="text-label-sm font-bold text-[#CA8A04]">74%</span>
+</div>
+</td>
+<td class="py-4 px-6 text-body-md text-on-surface-variant whitespace-nowrap">1d ago</td>
+<td class="py-4 px-6 text-right whitespace-nowrap space-x-2">
+<button class="inline-flex items-center justify-center border border-primary-container text-primary-container hover:bg-primary-container hover:text-on-primary px-3 py-1.5 rounded-lg transition-colors font-label-sm bg-transparent">
+                                Approve
+                            </button>
+<button class="inline-flex items-center justify-center border border-error text-error hover:bg-error hover:text-on-error px-3 py-1.5 rounded-lg transition-colors font-label-sm bg-transparent">
+                                Reject
+                            </button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface transition-colors group">
+<td class="py-4 px-6 text-body-md font-medium text-on-surface whitespace-nowrap">Dr. Amy Patel</td>
+<td class="py-4 px-6 text-body-md text-secondary whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">picture_as_pdf</span>
+                                DEA_Certificate.pdf
+                            </div>
+</td>
+<td class="py-4 px-6 text-body-md text-on-surface whitespace-nowrap">Tamper Detection</td>
+<td class="py-4 px-6 text-body-md text-error flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] mt-0.5">warning</span>
+                            Possible digital alteration in issuer field
+                        </td>
+<td class="py-4 px-6 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container w-[68%]"></div>
+</div>
+<span class="text-label-sm font-bold text-tertiary-container">68%</span>
+</div>
+</td>
+<td class="py-4 px-6 text-body-md text-on-surface-variant whitespace-nowrap">3d ago</td>
+<td class="py-4 px-6 text-right whitespace-nowrap space-x-2">
+<button class="inline-flex items-center justify-center border border-primary-container text-primary-container hover:bg-primary-container hover:text-on-primary px-3 py-1.5 rounded-lg transition-colors font-label-sm bg-transparent">
+                                Approve
+                            </button>
+<button class="inline-flex items-center justify-center border border-error text-error hover:bg-error hover:text-on-error px-3 py-1.5 rounded-lg transition-colors font-label-sm bg-transparent">
+                                Reject
+                            </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</body></html>

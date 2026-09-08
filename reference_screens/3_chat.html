@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MediVerify AI Compliance Chat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#ffc5b3",
+                        "on-surface": "#0b1c30",
+                        "tertiary": "#6b321f",
+                        "on-tertiary-fixed": "#390c01",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container": "#e5eeff",
+                        "secondary-fixed": "#dbe5e3",
+                        "secondary": "#57605f",
+                        "on-tertiary-fixed-variant": "#703623",
+                        "inverse-surface": "#213145",
+                        "outline": "#6f7976",
+                        "tertiary-container": "#884934",
+                        "on-secondary-container": "#5b6563",
+                        "on-secondary-fixed-variant": "#3f4947",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f8f9ff",
+                        "surface-bright": "#f8f9ff",
+                        "on-primary-fixed": "#00201b",
+                        "primary-fixed": "#a4f1e0",
+                        "primary-container": "#0a6659",
+                        "surface": "#f8f9ff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#3f4946",
+                        "inverse-primary": "#88d5c4",
+                        "tertiary-fixed-dim": "#ffb59d",
+                        "on-primary-fixed-variant": "#005046",
+                        "on-background": "#0b1c30",
+                        "primary": "#004c42",
+                        "secondary-fixed-dim": "#bfc9c7",
+                        "on-secondary-fixed": "#141d1c",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#94e1d0",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#88d5c4",
+                        "surface-dim": "#cbdbf5",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#d8e2e0",
+                        "outline-variant": "#bec9c5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "tertiary-fixed": "#ffdbd0",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#136a5d",
+                        "surface-container-high": "#dce9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen flex overflow-hidden">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-lowest border-r border-outline-variant h-full w-64 fixed left-0 top-0 flex flex-col py-8 px-4 z-50">
+<!-- Header -->
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">MediVerify</h1>
+<p class="font-label-sm text-label-sm text-secondary">Healthcare Compliance</p>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<ul class="flex-grow space-y-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low font-body-md text-body-md opacity-80 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat</span>
+                    Chat
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">security</span>
+                    Compliance Monitoring
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">gavel</span>
+                    Risk Assessment
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+                    Policy Library
+                </a>
+</li>
+</ul>
+<!-- Footer -->
+<div class="mt-auto border-t border-outline-variant pt-4 space-y-1">
+<button class="w-full flex items-center gap-2 px-3 py-3 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary transition-colors justify-center mb-4 shadow-sm hover:shadow-md">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Assessment
+            </button>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">help</span>
+                Help Center
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-error hover:bg-error-container transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Logout
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 flex-grow flex h-full">
+<!-- Left Panel: Conversation History -->
+<aside class="w-[260px] flex-shrink-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col h-full">
+<div class="p-4 border-b border-outline-variant">
+<button class="w-full bg-primary-container text-on-primary font-label-md text-label-md py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    New Chat
+                </button>
+</div>
+<div class="p-4 flex-grow overflow-y-auto">
+<h3 class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-3">Recent Conversations</h3>
+<ul class="space-y-1">
+<li>
+<button class="w-full text-left p-3 rounded-lg bg-surface-container-low text-primary font-body-md text-body-md border border-primary-fixed-dim/30">
+<div class="truncate font-semibold">Sandra Okafor compliance gaps</div>
+<div class="font-label-sm text-label-sm text-secondary mt-1">Just now</div>
+</button>
+</li>
+<li>
+<button class="w-full text-left p-3 rounded-lg hover:bg-surface-container-high text-on-surface font-body-md text-body-md transition-colors">
+<div class="truncate">BLS expiry check — ER dept</div>
+<div class="font-label-sm text-label-sm text-secondary mt-1">2 hours ago</div>
+</button>
+</li>
+<li>
+<button class="w-full text-left p-3 rounded-lg hover:bg-surface-container-high text-on-surface font-body-md text-body-md transition-colors">
+<div class="truncate">DEA renewal deadline query</div>
+<div class="font-label-sm text-label-sm text-secondary mt-1">Yesterday</div>
+</button>
+</li>
+<li>
+<button class="w-full text-left p-3 rounded-lg hover:bg-surface-container-high text-on-surface font-body-md text-body-md transition-colors">
+<div class="truncate">HIPAA training status</div>
+<div class="font-label-sm text-label-sm text-secondary mt-1">Tue, 14 Aug</div>
+</button>
+</li>
+<li>
+<button class="w-full text-left p-3 rounded-lg hover:bg-surface-container-high text-on-surface font-body-md text-body-md transition-colors">
+<div class="truncate">RN license CA reverify</div>
+<div class="font-label-sm text-label-sm text-secondary mt-1">Mon, 13 Aug</div>
+</button>
+</li>
+</ul>
+</div>
+</aside>
+<!-- Right Panel: Chat Area -->
+<section class="flex-grow bg-[#f4f7f9] flex flex-col h-full relative">
+<!-- Chat Header -->
+<header class="h-16 border-b border-outline-variant bg-surface-container-lowest px-6 flex items-center justify-between flex-shrink-0 z-10">
+<div class="flex items-center gap-3">
+<h2 class="font-headline-md text-[20px] text-primary">AI Compliance Assistant</h2>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide bg-secondary-container text-on-secondary-container">
+<span class="material-symbols-outlined text-[12px] mr-1">bolt</span>
+                        Powered by LangGraph
+                    </span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-secondary hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Chat History -->
+<div class="flex-grow overflow-y-auto p-6 space-y-6">
+<!-- User Message -->
+<div class="flex justify-end">
+<div class="bg-primary-container text-on-primary font-body-md text-body-md py-3 px-5 rounded-2xl rounded-tr-sm max-w-[75%] shadow-sm">
+                        What credentials is Sandra Okafor missing?
+                    </div>
+</div>
+<!-- AI Message -->
+<div class="flex justify-start">
+<div class="bg-surface-container-lowest border border-outline-variant border-l-4 border-l-primary-container rounded-xl p-5 max-w-[85%] shadow-sm hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
+<div class="flex items-center gap-2 mb-3 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<span class="font-label-md text-label-md">MediVerify AI</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-4">Based on Sandra Okafor’s current profile, 2 credentials are non-compliant:</p>
+<ul class="list-disc pl-5 space-y-2 font-body-md text-body-md text-on-surface mb-5">
+<li><span class="font-semibold text-error">RN License (CA): EXPIRED on 2024-08-01.</span> Authority status: expired (CA Board of Nursing)</li>
+<li><span class="font-semibold text-tertiary-container">BLS Certification: expires in 8 days</span> (Sept 12, 2026)</li>
+</ul>
+<!-- Citations -->
+<div class="border-t border-outline-variant pt-3 mb-3">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-secondary">Sources:</span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container text-primary font-label-sm text-label-sm border border-primary-fixed-dim/50 hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[14px]">link</span>
+                                    CA BRN Registry
+                                </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container text-primary font-label-sm text-label-sm border border-primary-fixed-dim/50 hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[14px]">description</span>
+                                    Hospital Policy v2.1
+                                </span>
+</div>
+</div>
+<!-- Reasoning Plan -->
+<div class="bg-surface rounded-lg p-2 flex items-center gap-2 font-label-sm text-[11px] text-secondary">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+<span class="opacity-80">Reasoning path: D2 memory → D4 registry lookup → D1 policy check</span>
+</div>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex justify-end">
+<div class="bg-primary-container text-on-primary font-body-md text-body-md py-3 px-5 rounded-2xl rounded-tr-sm max-w-[75%] shadow-sm">
+                        Generate a compliance report for her
+                    </div>
+</div>
+<!-- AI Message -->
+<div class="flex justify-start">
+<div class="bg-surface-container-lowest border border-outline-variant border-l-4 border-l-primary-container rounded-xl p-5 max-w-[85%] shadow-sm hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
+<div class="flex items-center gap-2 mb-3 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<span class="font-label-md text-label-md">MediVerify AI</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-3">Compliance report drafted for Sandra Okafor. It is now pending your approval before delivery.</p>
+<div class="mt-4 p-4 border border-outline-variant rounded-lg bg-surface flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-primary-container/10 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined">summarize</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Compliance Report - S. Okafor</div>
+<div class="font-label-sm text-label-sm text-secondary">PDF • Generated just now</div>
+</div>
+</div>
+<a class="font-label-md text-label-md text-primary-container hover:text-primary hover:underline flex items-center gap-1" href="#">
+                                View Report <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-6 bg-[#f4f7f9] border-t border-outline-variant/50 flex-shrink-0">
+<div class="max-w-4xl mx-auto relative flex items-center">
+<button class="absolute left-3 text-secondary hover:text-primary transition-colors p-2">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-full py-4 pl-12 pr-16 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm placeholder:text-secondary/70 transition-all" placeholder="Ask about credentials, compliance gaps, or generate a report…" type="text"/>
+<button class="absolute right-2 bg-primary-container text-on-primary w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+<div class="text-center mt-2 font-label-sm text-[11px] text-secondary">
+                    AI can make mistakes. Verify critical compliance information.
+                </div>
+</div>
+</section>
+</main>
+</body></html>

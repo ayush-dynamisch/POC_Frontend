@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MediVerify - Onboard New Organization</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "surface-variant": "#d3e4fe",
+                "error": "#ba1a1a",
+                "surface-tint": "#136a5d",
+                "on-secondary": "#ffffff",
+                "on-background": "#0b1c30",
+                "secondary-fixed-dim": "#bfc9c7",
+                "secondary": "#57605f",
+                "on-secondary-fixed-variant": "#3f4947",
+                "on-primary-fixed": "#00201b",
+                "background": "#f8f9ff",
+                "surface-dim": "#cbdbf5",
+                "surface-bright": "#f8f9ff",
+                "outline": "#6f7976",
+                "on-tertiary-container": "#ffc5b3",
+                "outline-variant": "#bec9c5",
+                "secondary-fixed": "#dbe5e3",
+                "inverse-primary": "#88d5c4",
+                "on-surface-variant": "#3f4946",
+                "tertiary": "#6b321f",
+                "on-tertiary-fixed-variant": "#703623",
+                "surface-container": "#e5eeff",
+                "inverse-surface": "#213145",
+                "inverse-on-surface": "#eaf1ff",
+                "surface": "#f8f9ff",
+                "primary-fixed-dim": "#88d5c4",
+                "surface-container-highest": "#d3e4fe",
+                "on-surface": "#0b1c30",
+                "primary-container": "#0a6659",
+                "on-tertiary-fixed": "#390c01",
+                "primary-fixed": "#a4f1e0",
+                "on-secondary-fixed": "#141d1c",
+                "surface-container-high": "#dce9ff",
+                "tertiary-fixed": "#ffdbd0",
+                "tertiary-fixed-dim": "#ffb59d",
+                "tertiary-container": "#884934",
+                "on-primary": "#ffffff",
+                "on-error": "#ffffff",
+                "on-secondary-container": "#5b6563",
+                "on-primary-fixed-variant": "#005046",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "on-error-container": "#93000a",
+                "surface-container-low": "#eff4ff",
+                "secondary-container": "#d8e2e0",
+                "on-primary-container": "#94e1d0",
+                "error-container": "#ffdad6",
+                "primary": "#004c42"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+              },
+              "spacing": {
+                "margin-mobile": "16px",
+                "unit": "8px",
+                "gutter": "24px",
+                "container-max": "1280px",
+                "margin-desktop": "32px"
+              },
+              "fontFamily": {
+                "headline-md": [
+                  "Plus Jakarta Sans"
+                ],
+                "display-lg": [
+                  "Plus Jakarta Sans"
+                ],
+                "body-md": [
+                  "Plus Jakarta Sans"
+                ],
+                "body-lg": [
+                  "Plus Jakarta Sans"
+                ],
+                "headline-lg-mobile": [
+                  "Plus Jakarta Sans"
+                ],
+                "label-md": [
+                  "Plus Jakarta Sans"
+                ],
+                "label-sm": [
+                  "Plus Jakarta Sans"
+                ],
+                "headline-lg": [
+                  "Plus Jakarta Sans"
+                ]
+              },
+              "fontSize": {
+                "headline-md": [
+                  "24px",
+                  {
+                    "lineHeight": "1.4",
+                    "fontWeight": "600"
+                  }
+                ],
+                "display-lg": [
+                  "48px",
+                  {
+                    "lineHeight": "1.2",
+                    "letterSpacing": "-0.02em",
+                    "fontWeight": "700"
+                  }
+                ],
+                "body-md": [
+                  "16px",
+                  {
+                    "lineHeight": "1.6",
+                    "fontWeight": "400"
+                  }
+                ],
+                "body-lg": [
+                  "18px",
+                  {
+                    "lineHeight": "1.6",
+                    "fontWeight": "400"
+                  }
+                ],
+                "headline-lg-mobile": [
+                  "24px",
+                  {
+                    "lineHeight": "1.3",
+                    "fontWeight": "700"
+                  }
+                ],
+                "label-md": [
+                  "14px",
+                  {
+                    "lineHeight": "1.4",
+                    "letterSpacing": "0.01em",
+                    "fontWeight": "600"
+                  }
+                ],
+                "label-sm": [
+                  "12px",
+                  {
+                    "lineHeight": "1.4",
+                    "fontWeight": "500"
+                  }
+                ],
+                "headline-lg": [
+                  "32px",
+                  {
+                    "lineHeight": "1.25",
+                    "letterSpacing": "-0.01em",
+                    "fontWeight": "700"
+                  }
+                ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .input-glow:focus {
+            box-shadow: 0 0 0 3px rgba(87, 96, 95, 0.2);
+            border-color: #0A6659;
+            outline: none;
+        }
+        .card-lift:hover {
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+            transform: translateY(-2px);
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md h-screen w-full flex overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-[260px] bg-primary-container text-on-primary-container h-full flex flex-col flex-shrink-0">
+<!-- Logo Area -->
+<div class="px-6 py-8 flex items-center gap-3">
+<span class="material-symbols-outlined text-3xl font-bold" style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
+<span class="font-headline-md text-headline-md tracking-tight text-white">MediVerify</span>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 px-4 py-4 space-y-2">
+<!-- Active State -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-tint/20 text-white font-label-md transition-colors border-l-4 border-white" href="#">
+<span class="material-symbols-outlined">corporate_fare</span>
+                Organizations
+            </a>
+<!-- Inactive State -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary-fixed-dim hover:bg-surface-tint/10 hover:text-white font-label-md transition-colors border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined">history</span>
+                Audit Log
+            </a>
+</nav>
+<!-- User/Admin Profile Area -->
+<div class="p-6 mt-auto border-t border-surface-tint/30">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-white font-bold">
+                    PA
+                </div>
+<div>
+<p class="font-label-md text-white">Platform Admin</p>
+<div class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-surface-tint/30">
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">shield_person</span>
+<span class="font-label-sm text-primary-fixed-dim">Super Admin</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 h-full overflow-y-auto px-margin-desktop py-8 bg-background flex flex-col relative">
+<!-- Header Section -->
+<div class="max-w-[720px] mx-auto w-full mb-8">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-secondary font-label-sm mb-4">
+<a class="hover:text-primary transition-colors" href="#">Organizations</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-surface">Onboard New Organization</span>
+</nav>
+<!-- Page Title -->
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-2">Onboard New Organization</h1>
+<p class="text-secondary font-body-md">Creates the organization record and the first admin login. A system-generated password is emailed to the admin.</p>
+</div>
+<!-- Form Card -->
+<div class="max-w-[720px] mx-auto w-full bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-sm">
+<form action="#" class="space-y-8" method="POST">
+<!-- Section 1: Organization Details -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">domain</span>
+                        Organization Details
+                    </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+<!-- Org Name -->
+<div class="col-span-1 md:col-span-2">
+<label class="block font-label-md text-on-surface mb-2" for="orgName">Organization Name <span class="text-error">*</span></label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-0 input-glow transition-all" id="orgName" name="orgName" placeholder="St. Mercy General Hospital" required="" type="text"/>
+</div>
+<!-- Org Email -->
+<div>
+<label class="block font-label-md text-on-surface mb-2" for="orgEmail">Organization Email <span class="text-error">*</span></label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-0 input-glow transition-all" id="orgEmail" name="orgEmail" placeholder="compliance@stmercy.org" required="" type="email"/>
+</div>
+<!-- Phone Number -->
+<div>
+<label class="block font-label-md text-on-surface mb-2" for="phone">Phone Number</label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-0 input-glow transition-all" id="phone" name="phone" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+<!-- Employees -->
+<div class="col-span-1 md:col-span-2">
+<label class="block font-label-md text-on-surface mb-2" for="employees">Number of Employees <span class="text-error">*</span></label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-0 input-glow transition-all" id="employees" max="10000" min="1" name="employees" placeholder="248" required="" type="number"/>
+<p class="mt-2 text-secondary font-label-sm">Between 1 and 10,000</p>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<hr class="border-outline-variant"/>
+<!-- Section 2: First Admin Account -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">person_add</span>
+                        First Admin Account
+                    </h2>
+<!-- Info Banner -->
+<div class="bg-surface-container-low border border-primary-fixed-dim/50 rounded-lg p-4 mb-6 flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary mt-0.5">info</span>
+<p class="font-body-md text-on-surface-variant">This person will be the organization admin. They will receive an invitation email with a one-time password to set up their workspace.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+<!-- Admin Name -->
+<div>
+<label class="block font-label-md text-on-surface mb-2" for="adminName">Admin Full Name <span class="text-error">*</span></label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-0 input-glow transition-all" id="adminName" name="adminName" placeholder="Dr. Sarah Chen" required="" type="text"/>
+</div>
+<!-- Admin Email -->
+<div>
+<label class="block font-label-md text-on-surface mb-2" for="adminEmail">Admin Email <span class="text-error">*</span></label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-0 input-glow transition-all" id="adminEmail" name="adminEmail" placeholder="admin@stmercy.org" required="" type="email"/>
+</div>
+</div>
+</section>
+<!-- Actions -->
+<div class="pt-6 flex items-center justify-between">
+<a class="font-label-md text-secondary hover:text-on-surface transition-colors" href="#">Cancel</a>
+<button class="bg-primary-container hover:bg-primary-container/90 text-white font-label-md h-12 px-6 rounded-lg transition-colors flex items-center gap-2" type="submit">
+<span>Create Organization &amp; Send Invite</span>
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</form>
+</div>
+<!-- Post-Action Preview (Collapsed/Grayed out state) -->
+<div class="max-w-[720px] mx-auto w-full mt-8 opacity-60 grayscale-[30%] select-none pointer-events-none">
+<div class="bg-surface-container border border-outline-variant border-dashed rounded-xl p-6">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-secondary">terminal</span>
+<h3 class="font-label-md text-secondary uppercase tracking-wider">Response Preview</h3>
+</div>
+<div class="grid grid-cols-2 gap-4 text-sm font-mono text-on-surface-variant bg-surface-container-lowest p-4 rounded-lg border border-outline-variant/50">
+<div class="text-secondary">org_id:</div>
+<div>org_7a8b9c0d1e2f</div>
+<div class="text-secondary">name:</div>
+<div>St. Mercy General Hospital</div>
+<div class="text-secondary">admin_email:</div>
+<div>admin@stmercy.org</div>
+<div class="text-secondary">status:</div>
+<div><span class="px-2 py-0.5 bg-tertiary-container/10 text-tertiary-container rounded-full text-xs">invited</span></div>
+<div class="text-secondary">generated_password:</div>
+<div class="flex items-center gap-2">
+<span>****</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">content_copy</span>
+</div>
+</div>
+<p class="mt-4 font-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">visibility</span>
+                    The generated password is shown once here and emailed to the admin.
+                </p>
+</div>
+</div>
+</main>
+</body></html>

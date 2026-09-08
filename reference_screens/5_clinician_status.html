@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MediVerify - Clinician Compliance Status</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#88d5c4",
+                        "tertiary-fixed-dim": "#ffb59d",
+                        "surface-tint": "#136a5d",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "primary-container": "#0a6659",
+                        "secondary-container": "#d8e2e0",
+                        "on-error": "#ffffff",
+                        "tertiary": "#6b321f",
+                        "outline-variant": "#bec9c5",
+                        "primary-fixed": "#a4f1e0",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-highest": "#d3e4fe",
+                        "secondary": "#57605f",
+                        "surface-container-high": "#dce9ff",
+                        "outline": "#6f7976",
+                        "on-primary-fixed-variant": "#005046",
+                        "on-secondary-fixed": "#141d1c",
+                        "primary": "#004c42",
+                        "inverse-surface": "#213145",
+                        "on-primary-container": "#94e1d0",
+                        "on-secondary-container": "#5b6563",
+                        "tertiary-fixed": "#ffdbd0",
+                        "on-surface-variant": "#3f4946",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#bfc9c7",
+                        "on-tertiary-fixed-variant": "#703623",
+                        "on-primary-fixed": "#00201b",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#eff4ff",
+                        "tertiary-container": "#884934",
+                        "inverse-primary": "#88d5c4",
+                        "on-tertiary-container": "#ffc5b3",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#dbe5e3",
+                        "surface-container": "#e5eeff",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#cbdbf5",
+                        "background": "#f8f9ff",
+                        "on-background": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed": "#390c01",
+                        "on-secondary-fixed-variant": "#3f4947"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "unit": "8px",
+                        "margin-desktop": "32px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="h-screen w-64 flex-col fixed left-0 top-0 border-r border-outline-variant bg-surface-container-lowest flex py-gutter px-4 z-20">
+<div class="mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">MediVerify</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Compliance Portal</p>
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary font-label-md text-label-md py-3 px-4 rounded-lg flex items-center justify-center gap-2 mb-8 hover:bg-primary transition-colors duration-200 ease-in-out">
+<span class="material-symbols-outlined">add</span>
+            New Audit
+        </button>
+<ul class="flex-1 space-y-2">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+<span class="font-label-md text-label-md">Clinicians</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-md text-label-md">Documents</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">chat</span>
+<span class="font-label-md text-label-md">Chat</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto border-t border-outline-variant pt-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="ml-64 flex-1 flex flex-col h-screen overflow-hidden bg-background">
+<!-- TopNavBar -->
+<header class="h-16 flex justify-between items-center px-margin-desktop bg-surface border-b border-outline-variant z-10 shrink-0">
+<div class="flex items-center text-on-surface-variant font-label-md text-label-md">
+<a class="hover:text-primary transition-colors" href="#">Dashboard</a>
+<span class="material-symbols-outlined mx-2 text-sm">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Clinicians</a>
+<span class="material-symbols-outlined mx-2 text-sm">chevron_right</span>
+<span class="text-primary font-bold">Sandra Okafor</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<main class="flex-1 overflow-y-auto p-margin-desktop space-y-6">
+<!-- TOP CARD -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-6">
+<div class="w-20 h-20 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-headline-md text-headline-md font-bold">
+                        SO
+                    </div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Sandra Okafor <span class="text-on-surface-variant text-body-md font-normal ml-2">ID: 104</span></h2>
+<div class="flex items-center gap-4 text-on-surface-variant font-label-md text-label-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">badge</span> Nurse (RN)</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">local_hospital</span> Oncology — St. Mercy Hospital</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="bg-error text-on-error px-4 py-2 rounded-full font-label-md text-label-md flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">warning</span>
+                        NON-COMPLIANT
+                    </div>
+<button class="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-2 rounded-lg hover:bg-primary transition-colors shadow-sm">
+                        Generate Report
+                    </button>
+</div>
+</section>
+<!-- MID SECTION - Credential Status Table -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm flex flex-col">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Credential Status</h3>
+<div class="flex gap-2 font-label-sm text-label-sm">
+<button class="px-3 py-1.5 rounded-full bg-primary-container text-on-primary">All</button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors">Verified</button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors">Expiring</button>
+<button class="px-3 py-1.5 rounded-full bg-error-container text-on-error-container font-bold">Non-Compliant</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-[#F1F5F9] font-label-sm text-label-sm text-on-surface-variant border-b border-outline-variant">
+<tr>
+<th class="py-3 px-6 font-bold">Credential Type</th>
+<th class="py-3 px-6 font-bold">Identifier</th>
+<th class="py-3 px-6 font-bold">Status</th>
+<th class="py-3 px-6 font-bold">Authority Status</th>
+<th class="py-3 px-6 font-bold">Issued</th>
+<th class="py-3 px-6 font-bold">Expires</th>
+<th class="py-3 px-6 font-bold">Source</th>
+<th class="py-3 px-6 font-bold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-lowest transition-colors bg-error-container/10">
+<td class="py-4 px-6 font-medium">RN License (CA)</td>
+<td class="py-4 px-6 text-on-surface-variant">RN-8472910</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error text-on-error font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">error</span> EXPIRED
+                                    </span>
+</td>
+<td class="py-4 px-6 text-error">expired</td>
+<td class="py-4 px-6 text-on-surface-variant">2019-03-15</td>
+<td class="py-4 px-6 font-bold text-error">2024-08-01</td>
+<td class="py-4 px-6 text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">account_balance</span> government_registry
+                                </td>
+<td class="py-4 px-6 text-right">
+<div class="flex justify-end gap-2 font-label-sm text-label-sm">
+<button class="px-3 py-1 rounded border border-primary text-primary hover:bg-primary-container hover:text-on-primary transition-colors">Reverify</button>
+<button class="px-3 py-1 rounded border border-error text-error hover:bg-error hover:text-on-error transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">gavel</span> Override
+                                        </button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="py-4 px-6 font-medium">BLS Certification</td>
+<td class="py-4 px-6 text-on-surface-variant">BLS-2024-0882</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#166534] text-white font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> VERIFIED
+                                    </span>
+</td>
+<td class="py-4 px-6 text-[#166534]">active</td>
+<td class="py-4 px-6 text-on-surface-variant">2024-02-01</td>
+<td class="py-4 px-6 text-on-surface-variant">2026-09-12</td>
+<td class="py-4 px-6 text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">description</span> document_extraction
+                                </td>
+<td class="py-4 px-6 text-right">
+<button class="px-3 py-1 rounded border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-colors font-label-sm text-label-sm">Reverify</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+</div>
+</body></html>
