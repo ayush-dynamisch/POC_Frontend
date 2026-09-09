@@ -98,8 +98,20 @@ export interface DocumentCheck {
 
 export interface Citation {
   title: string;
-  sourceType: 'Registry' | 'Policy' | 'Memory';
+  sourceType: 'Registry' | 'Policy' | 'Memory' | 'Document';
   uri?: string;
+  /** Raw backend "source" field, e.g. "policy:RN License", "ocr:extract_document". */
+  source?: string;
+  /** chunk_id / policy_document_id / job_id / fetched_at, depending on citation kind. */
+  reference?: string;
+  /** 0-1 relevance/confidence score, present on RAG/OCR/connector citations. */
+  confidence?: number;
+  /** Explanatory or excerpt text, present on registry & compliance-finding citations. */
+  text?: string;
+  /** source_chunk_id, present on compliance-finding citations. */
+  chunkId?: string;
+  /** Present on registry/authority citations when the source data is stale/degraded. */
+  degraded?: boolean;
 }
 
 export interface ChatMessage {

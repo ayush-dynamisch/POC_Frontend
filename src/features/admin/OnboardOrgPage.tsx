@@ -110,7 +110,8 @@ export const OnboardOrgPage: React.FC = () => {
         </div>
       )}
 
-      {/* Main Form Card */}
+      {/* Main Form Card - Super Admin only */}
+      {isSuperAdmin && (
       <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 md:p-8 shadow-xs">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Section 1: Organization Details */}
@@ -249,6 +250,7 @@ export const OnboardOrgPage: React.FC = () => {
           </div>
         </form>
       </div>
+      )}
 
       {/* Success Modal */}
       {createdResult && (

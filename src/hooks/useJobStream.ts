@@ -1,14 +1,15 @@
 import { useCallback, useRef, useState } from 'react';
-import { chatApi } from '../../services/api';
-import type { ChatStreamEvent, ProgressEvent } from '../../types/events';
+import { jobsApi } from '../services/api';
+import type { ChatStreamEvent, ProgressEvent } from '../types/events';
 
-interface UseChatStreamResult {
+interface UseJobStreamResult {
   /** Non-terminal progress events for the in-flight job, in first-seen order. */
   liveSteps: ProgressEvent[];
   /** True while a stream connection is open and no terminal event has arrived yet. */
   isStreaming: boolean;
   /**
-   * Opens GET /chat/stream/{jobId} and resolves once a terminal event
+   * Opens GET /chat/stream/{jobId} (domain-agnostic — works for any job_id,
+   * chat or policy ingestion) and resolves once a terminal event
    * (complete/error/awaiting_approval) arrives. Cancels any prior in-flight
    * stream first. Rejects if the connection drops or ends without ever
    * reaching a terminal event.
@@ -18,7 +19,7 @@ interface UseChatStreamResult {
   cancelStream: () => void;
 }
 
-export function useChatStream(): UseChatStreamResult {
+export function useJobStream(): UseJobStreamResult {
   const [liveSteps, setLiveSteps] = useState<ProgressEvent[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -39,7 +40,7 @@ export function useChatStream(): UseChatStreamResult {
     let settled = false;
 
     return new Promise<ChatStreamEvent>((resolve, reject) => {
-      chatApi
+      jobsApi
         .streamJob(jobId, {
           signal: controller.signal,
           onEvent: (evt) => {

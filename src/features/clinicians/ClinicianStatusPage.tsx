@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { cliniciansApi, credentialsApi, type ClinicianComplianceStatus } from '../../services/api';
+import { dashboardApi, cliniciansApi, credentialsApi, type DashboardResponse, type ClinicianComplianceStatus } from '../../services/api';
+import { AddTeamPanel } from './AddTeamPanel';
+
+type RosterClinician = DashboardResponse['clinicians'][number];
 
 export const ClinicianStatusPage: React.FC = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const canManageTeam = user?.role === 'admin' || user?.role === 'hr';
+  const [activeTab, setActiveTab] = useState<'compliance' | 'addTeam'>('compliance');
 
-  const [cliniciansList, setCliniciansList] = useState<{ id: string; name: string; role: string }[]>([]);
+  const [roster, setRoster] = useState<RosterClinician[]>([]);
+  const [rosterLoading, setRosterLoading] = useState(true);
+  const [rosterSearch, setRosterSearch] = useState('');
   const [selectedClinicianId, setSelectedClinicianId] = useState<string>('');
   const [statusData, setStatusData] = useState<ClinicianComplianceStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,34 +30,32 @@ export const ClinicianStatusPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
-  // Load clinicians list for org
+  // Load the org-wide clinician roster (with compliance summary per clinician)
   useEffect(() => {
-    async function loadClinicians() {
+    async function loadRoster() {
       if (!user?.orgId) return;
+      setRosterLoading(true);
       try {
-        const list = await cliniciansApi.listClinicians(user.orgId);
-        const mapped = list.map((c: any) => ({
-          id: c.clinician_id || c.id,
-          name: c.full_name || c.name || 'Clinician',
-          role: c.role || 'nurse'
-        }));
-        setCliniciansList(mapped);
+        const data = await dashboardApi.getDashboard(user.orgId);
+        const clinicians = data.clinicians || [];
+        setRoster(clinicians);
 
-        // Determine current clinician ID
+        // Deep-link support: preselect a clinician only if the URL asks for one.
         const urlId = searchParams.get('id');
-        if (urlId && mapped.some(m => m.id === urlId)) {
+        if (urlId && clinicians.some((c) => c.clinician_id === urlId)) {
           setSelectedClinicianId(urlId);
-        } else if (mapped.length > 0) {
-          setSelectedClinicianId(mapped[0].id);
-          setSearchParams({ id: mapped[0].id });
         }
       } catch (err: any) {
-        console.error('Failed to load clinicians list:', err);
+        console.error('Failed to load clinician roster:', err);
+        setRoster([]);
+      } finally {
+        setRosterLoading(false);
       }
     }
 
-    loadClinicians();
-  }, [user, searchParams, setSearchParams]);
+    loadRoster();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // Load compliance status for selected clinician
   useEffect(() => {
@@ -75,6 +80,13 @@ export const ClinicianStatusPage: React.FC = () => {
   const handleClinicianChange = (id: string) => {
     setSelectedClinicianId(id);
     setSearchParams({ id });
+  };
+
+  const handleBackToRoster = () => {
+    setSelectedClinicianId('');
+    setStatusData(null);
+    searchParams.delete('id');
+    setSearchParams(searchParams);
   };
 
   const handleReverify = async (item: any) => {
@@ -122,6 +134,12 @@ export const ClinicianStatusPage: React.FC = () => {
     }
   };
 
+  const filteredRoster = roster.filter((c) => {
+    const q = rosterSearch.trim().toLowerCase();
+    if (!q) return true;
+    return c.full_name.toLowerCase().includes(q) || c.role.toLowerCase().includes(q);
+  });
+
   const findings = statusData?.findings || [];
 
   const filteredFindings = findings.filter((f) => {
@@ -163,30 +181,133 @@ export const ClinicianStatusPage: React.FC = () => {
         </div>
       )}
 
-      {/* Clinician Selector Bar */}
-      {cliniciansList.length > 1 && (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] p-4 flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-[#57605f] uppercase tracking-wider">
-              Selected Clinician:
-            </span>
-            <select
-              value={selectedClinicianId}
-              onChange={(e) => handleClinicianChange(e.target.value)}
-              className="bg-[#f8f9ff] border border-[#CBD5E1] rounded-lg py-1.5 px-3 text-sm font-medium text-[#0b1c30] focus:outline-none focus:border-[#0a6659] cursor-pointer"
-            >
-              {cliniciansList.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} ({c.role})
-                </option>
-              ))}
-            </select>
-          </div>
-          <span className="text-xs text-[#6f7976]">
-            {cliniciansList.length} total clinicians in organization
-          </span>
+      {/* Tab Switcher */}
+      {canManageTeam && (
+        <div className="inline-flex items-center gap-1 p-1 bg-[#f8f9ff] border border-[#E2E8F0] rounded-lg">
+          <button
+            onClick={() => setActiveTab('compliance')}
+            className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors cursor-pointer ${
+              activeTab === 'compliance'
+                ? 'bg-white text-[#0a6659] shadow-xs'
+                : 'text-[#57605f] hover:text-[#0b1c30]'
+            }`}
+          >
+            Compliance View
+          </button>
+          <button
+            onClick={() => setActiveTab('addTeam')}
+            className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors cursor-pointer ${
+              activeTab === 'addTeam'
+                ? 'bg-white text-[#0a6659] shadow-xs'
+                : 'text-[#57605f] hover:text-[#0b1c30]'
+            }`}
+          >
+            Add Team
+          </button>
         </div>
       )}
+
+      {activeTab === 'addTeam' && canManageTeam ? (
+        <AddTeamPanel />
+      ) : !selectedClinicianId ? (
+        <>
+        {/* Clinician Roster Table */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="relative w-full max-w-xs">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#6f7976]">
+              search
+            </span>
+            <input
+              type="text"
+              value={rosterSearch}
+              onChange={(e) => setRosterSearch(e.target.value)}
+              placeholder="Search by name or role..."
+              className="w-full h-10 pl-9 pr-3 rounded-lg border border-[#CBD5E1] bg-[#f8f9ff] text-sm text-[#0b1c30] focus:outline-none focus:border-[#0a6659] focus:ring-2 focus:ring-[#0a6659]/20 transition-all"
+            />
+          </div>
+          <span className="text-xs text-[#6f7976] shrink-0">
+            {roster.length} total clinician{roster.length === 1 ? '' : 's'} in organization
+          </span>
+        </div>
+
+        <section className="bg-white rounded-xl border border-[#E2E8F0] shadow-xs overflow-hidden">
+          <div className="overflow-x-auto">
+            {rosterLoading ? (
+              <div className="p-12 text-center text-[#57605f] flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined animate-spin text-[#0a6659]">sync</span>
+                <span>Loading clinician roster from backend...</span>
+              </div>
+            ) : filteredRoster.length === 0 ? (
+              <div className="p-12 text-center text-[#57605f]">
+                <span className="material-symbols-outlined text-4xl text-[#6f7976] mb-2">group_off</span>
+                <p className="font-semibold text-[#0b1c30]">No clinicians found</p>
+                <p className="text-xs text-[#6f7976] mt-1">
+                  {roster.length === 0
+                    ? 'No clinicians are registered in this organization yet.'
+                    : 'Try a different search term.'}
+                </p>
+              </div>
+            ) : (
+              <table className="w-full text-left border-collapse min-w-[800px]">
+                <thead className="bg-[#eff4ff]/60 text-xs font-semibold text-[#57605f] border-b border-[#E2E8F0]">
+                  <tr>
+                    <th className="py-3.5 px-6">Name</th>
+                    <th className="py-3.5 px-6">Role</th>
+                    <th className="py-3.5 px-6">Jurisdiction</th>
+                    <th className="py-3.5 px-6">Compliance</th>
+                    <th className="py-3.5 px-6">Mandatory Gaps</th>
+                    <th className="py-3.5 px-6">Total Requirements</th>
+                    <th className="py-3.5 px-6 w-8"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E2E8F0] text-sm text-[#0b1c30]">
+                  {filteredRoster.map((c) => (
+                    <tr
+                      key={c.clinician_id}
+                      onClick={() => handleClinicianChange(c.clinician_id)}
+                      className="hover:bg-[#f8f9ff] transition-colors cursor-pointer"
+                    >
+                      <td className="py-4 px-6 font-medium text-[#0b1c30]">{c.full_name}</td>
+                      <td className="py-4 px-6 capitalize text-[#57605f]">{c.role}</td>
+                      <td className="py-4 px-6 text-[#57605f]">{c.jurisdiction || '—'}</td>
+                      <td className="py-4 px-6">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                            c.summary.compliant ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#ffdad6] text-[#ba1a1a]'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-[14px]">
+                            {c.summary.compliant ? 'check_circle' : 'warning'}
+                          </span>
+                          {c.summary.compliant ? 'Compliant' : 'Non-Compliant'}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={c.summary.mandatory_gaps > 0 ? 'text-[#ba1a1a] font-semibold' : 'text-[#57605f]'}>
+                          {c.summary.mandatory_gaps}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-[#57605f]">{c.summary.total_requirements}</td>
+                      <td className="py-4 px-6 text-right">
+                        <span className="material-symbols-outlined text-[18px] text-[#6f7976]">chevron_right</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </section>
+        </>
+      ) : (
+      <>
+      <button
+        onClick={handleBackToRoster}
+        className="flex items-center gap-1.5 text-xs font-semibold text-[#0a6659] hover:underline cursor-pointer"
+      >
+        <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+        Back to All Clinicians
+      </button>
 
       {/* TOP CARD: Clinician Profile Summary */}
       <section className="bg-white rounded-xl border border-[#E2E8F0] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
@@ -516,6 +637,8 @@ export const ClinicianStatusPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

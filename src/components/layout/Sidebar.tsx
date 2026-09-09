@@ -17,10 +17,12 @@ export const Sidebar: React.FC = () => {
       to: '/onboardOrg',
       label: 'Onboard Org',
       icon: 'corporate_fare',
-      roles: ['super_admin', 'admin', 'compliance_officer', 'hr', 'clinician'],
+      roles: ['super_admin'],
       isSpecial: true
     }
   ];
+
+  const visibleNavItems = navItems.filter((item) => !!user?.role && item.roles.includes(user.role));
 
   return (
     <aside className="w-[260px] bg-[#0a6659] text-white flex-shrink-0 flex flex-col justify-between hidden md:flex h-full border-r border-[#005046] shadow-md select-none">
@@ -40,7 +42,7 @@ export const Sidebar: React.FC = () => {
 
         {/* Navigation */}
         <nav className="p-3 flex flex-col gap-1.5 mt-3">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive =
               item.to === '/'
                 ? location.pathname === '/' || location.pathname === '/dashboard'
