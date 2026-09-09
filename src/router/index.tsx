@@ -8,6 +8,7 @@ import { DocumentsPage } from "../features/documents/DocumentsPage";
 import { ClinicianStatusPage } from "../features/clinicians/ClinicianStatusPage";
 import { ReportsPage } from "../features/reports/ReportsPage";
 import { OnboardOrgPage } from "../features/admin/OnboardOrgPage";
+import { CostManagementPage } from "../features/admin/CostManagementPage";
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
       {
         path: "onboardOrg",
         element: <OnboardOrgPage />,
+      },
+      {
+        path: "costManagement",
+        element: <CostManagementPage />,
       },
     ],
   },

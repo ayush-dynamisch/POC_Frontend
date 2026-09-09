@@ -33,6 +33,7 @@ export default defineConfig({
       '/policies': apiProxy,
       '/reports': apiProxy,
       '/admin': apiProxy,
+      '/agent-runs': apiProxy,
       '/api': apiProxy,
       '/health': apiProxy
     }

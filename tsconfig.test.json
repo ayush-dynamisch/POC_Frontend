@@ -1,0 +1,28 @@
+// Node 20 cannot strip TS types, so `npm test` compiles the checks with the
+// tsc already in devDependencies and runs the output with node's built-in test
+// runner. No test framework, no new dependency.
+//
+// `module: preserve` keeps the ESM imports, which the root package.json's
+// "type": "module" makes node execute directly, and
+// `rewriteRelativeImportExtensions` turns the test's `./costMath.ts` import
+// into `./costMath.js` on the way out. costMath itself imports only a *type*
+// from the API layer, so that import erases and the emitted file needs nothing
+// from the DOM-flavoured rest of the app.
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "rootDir": "src",
+    "outDir": ".tmp-test",
+    "noEmit": false
+  },
+  "include": ["src/features/admin/costMath.ts", "src/features/admin/costMath.test.ts"]
+}

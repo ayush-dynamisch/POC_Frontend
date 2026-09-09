@@ -22,5 +22,8 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Node-runtime checks, compiled by tsconfig.test.json instead — the app
+  // build has no node types and would reject `node:test`.
+  "exclude": ["src/**/*.test.ts"]
 }

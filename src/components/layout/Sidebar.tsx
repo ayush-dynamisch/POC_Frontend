@@ -19,6 +19,13 @@ export const Sidebar: React.FC = () => {
       icon: 'corporate_fare',
       roles: ['super_admin'],
       isSpecial: true
+    },
+    {
+      to: '/costManagement',
+      label: 'Cost Management',
+      icon: 'payments',
+      roles: ['super_admin'],
+      isSpecial: true
     }
   ];
 

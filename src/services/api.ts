@@ -651,6 +651,149 @@ export const teamApi = {
   },
 };
 
+// 11. Cost Management Service (Platform Super Admin)
+// Backed by GET /agent-runs, which is gated on the `audit_logs:read` scope —
+// the one data-plane scope a super_admin holds. An admin account has no
+// organization of its own, so omitting `org_id` returns the unfiltered
+// cross-org feed. That is the platform-wide spend view.
+
+// The `usage` JSONB written by app/core/usage.py. Money is always
+// `str(Decimal)` and never a float: a Numeric(12,6) that round-trips through a
+// JS number is a Numeric(12,6) you can no longer trust. `null` means the model
+// had no published price, NOT that the call was free.
+export interface AgentRunUsageBucket {
+  input: number;
+  output: number;
+  cost_usd: string | null;
+  calls: number;
+}
+
+export interface AgentRunUsage {
+  total: {
+    tokens: number;
+    input: number;
+    output: number;
+    cost_usd: string | null;
+    calls: number;
+    latency_ms?: number;
+  };
+  by_model: Record<string, AgentRunUsageBucket>;
+  // `latency_ms` here is the agent's own turn. Spans nest, so these do not sum
+  // to the turn's wall clock — see app/core/usage.py.
+  by_agent: Record<
+    string,
+    {
+      tokens: number;
+      cost_usd: string | null;
+      latency_ms: number;
+      calls: number;
+      runs: number;
+    }
+  >;
+}
+
+export interface AgentRunRow {
+  id: string;
+  organization_id: string;
+  // Outer-joined, so null when a run outlives its organization.
+  organization_name: string | null;
+  domain: string;
+  agent_name: string;
+  status: string;
+  tokens: number | null;
+  cost_usd: string | null;
+  latency_ms: number | null;
+  // Null for rows written before the column existed, which every historical
+  // row is. Totals still work from `cost_usd`; only the breakdown is missing.
+  usage: AgentRunUsage | null;
+  created_at: string;
+}
+
+export interface AgentRunsResponse {
+  runs: AgentRunRow[];
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+// GET /agent-runs/summary — the roll-up, done in SQL. Totals over a range
+// three ways: by organization (from the row columns) and by model / by agent
+// (summed inside the `usage` JSONB). Unbounded when since/until are omitted,
+// so "everything so far" is one request.
+export interface CostByOrg {
+  organization_id: string;
+  organization_name: string | null;
+  runs: number;
+  tokens: number;
+  cost_usd: string;
+}
+
+export interface CostByModel {
+  model: string;
+  calls: number;
+  input: number;
+  output: number;
+  cost_usd: string;
+}
+
+export interface CostByAgent {
+  agent: string;
+  calls: number;
+  runs: number;
+  tokens: number;
+  latency_ms: number;
+  cost_usd: string;
+}
+
+export interface AgentRunsSummary {
+  since: string | null;
+  until: string | null;
+  total: { runs: number; tokens: number; cost_usd: string };
+  by_org: CostByOrg[];
+  by_model: CostByModel[];
+  by_agent: CostByAgent[];
+  // Non-empty means every money figure above is an undercount: these models
+  // have no published price, so they contributed tokens but no dollars.
+  unpriced_models: string[];
+}
+
+// The row feed hard-caps `limit` at 50 server-side. We only ever want one page
+// of it — the totals come from /summary, not from walking this.
+const AGENT_RUNS_PAGE = 50;
+
+export const costApi = {
+  async getSummary(params: {
+    since?: string;
+    until?: string;
+    orgId?: string;
+  }): Promise<AgentRunsSummary> {
+    const query = new URLSearchParams();
+    if (params.since) query.append("since", params.since);
+    if (params.until) query.append("until", params.until);
+    if (params.orgId) query.append("org_id", params.orgId);
+    const qs = query.toString();
+    return apiFetch<AgentRunsSummary>(
+      `/agent-runs/summary${qs ? `?${qs}` : ""}`,
+    );
+  },
+
+  async listAgentRuns(params: {
+    since?: string;
+    until?: string;
+    domain?: string;
+    orgId?: string;
+    offset?: number;
+  }): Promise<AgentRunsResponse> {
+    const query = new URLSearchParams({ limit: String(AGENT_RUNS_PAGE) });
+    if (params.since) query.append("since", params.since);
+    if (params.until) query.append("until", params.until);
+    if (params.domain) query.append("domain", params.domain);
+    if (params.orgId) query.append("org_id", params.orgId);
+    if (params.offset) query.append("offset", String(params.offset));
+    return apiFetch<AgentRunsResponse>(`/agent-runs?${query.toString()}`);
+  },
+};
+
 // Generic async-job SSE/polling helpers. The backend's job endpoints
 // (GET /chat/stream/{jobId}, GET /chat/status/{jobId}) are Redis-backed and
 // domain-agnostic — any job_id, chat or policy ingestion, streams through the
