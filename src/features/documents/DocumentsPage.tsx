@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
     documentsApi,
@@ -44,11 +45,17 @@ export const DocumentsPage: React.FC = () => {
     // both documents:update. A clinician 403s on the fetch, which used to surface
     // as an empty queue reading "all resolved".
     const canReviewChecks = hasScope(user?.role, "documents:update");
+    // Deep link from a clinician's detail page: preselect that clinician so the
+    // Upload Document button there lands on a form already pointed at them.
+    const [searchParams] = useSearchParams();
+    const deepLinkedClinicianId = searchParams.get("clinicianId");
     const [activeTab, setActiveTab] = useState<"credentials" | "policies">(
         "credentials",
     );
     const [clinicians, setClinicians] = useState<ClinicianOption[]>([]);
-    const [selectedClinicianId, setSelectedClinicianId] = useState("");
+    const [selectedClinicianId, setSelectedClinicianId] = useState(
+        deepLinkedClinicianId || "",
+    );
     const [credentialType, setCredentialType] = useState("rn_license");
     const [requiredCredentialTypes, setRequiredCredentialTypes] = useState<
         string[]
@@ -78,7 +85,7 @@ export const DocumentsPage: React.FC = () => {
                         role: c.role || "Clinician",
                     }));
                     setClinicians(mapped);
-                    if (mapped.length > 0) {
+                    if (!deepLinkedClinicianId && mapped.length > 0) {
                         setSelectedClinicianId(mapped[0].id);
                     }
                 } catch {
@@ -103,7 +110,7 @@ export const DocumentsPage: React.FC = () => {
         }
 
         loadData();
-    }, [user]);
+    }, [user, deepLinkedClinicianId]);
 
     // Load which credential types are actually required for the selected
     // clinician's role + jurisdiction (the compliance engine already resolves
@@ -129,7 +136,24 @@ export const DocumentsPage: React.FC = () => {
                             .filter((t): t is string => !!t),
                     ),
                 );
-                if (!cancelled) setRequiredCredentialTypes(types);
+                if (cancelled) return;
+                setRequiredCredentialTypes(types);
+                if (status.clinician) {
+                    setClinicians((prev) =>
+                        prev.some((c) => c.id === selectedClinicianId)
+                            ? prev
+                            : [
+                                  ...prev,
+                                  {
+                                      id: selectedClinicianId,
+                                      name:
+                                          status.clinician.full_name ||
+                                          "Clinician",
+                                      role: status.clinician.role || "Clinician",
+                                  },
+                              ],
+                    );
+                }
             } catch {
                 if (!cancelled) setRequiredCredentialTypes([]);
             } finally {

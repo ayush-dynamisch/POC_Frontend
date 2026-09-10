@@ -548,6 +548,19 @@ export const ClinicianStatusPage: React.FC = () => {
                                 </span>
                                 {isCompliant ? "COMPLIANT" : "NON-COMPLIANT"}
                             </div>
+                            <button
+                                onClick={() =>
+                                    navigate(
+                                        `/documents?clinicianId=${selectedClinicianId}`,
+                                    )
+                                }
+                                className="bg-[#0a6659] hover:bg-[#004c42] text-white text-xs font-semibold px-5 py-2.5 rounded-lg transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">
+                                    upload_file
+                                </span>
+                                <span>Upload Document</span>
+                            </button>
                             {/* {canManageTeam && (
                                 <ClinicianAccessControl
                                     portal_access={
