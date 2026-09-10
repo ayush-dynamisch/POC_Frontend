@@ -6,12 +6,34 @@ import {
   type ReviewQueueCheck,
 } from "../../services/api";
 import { PolicyManagementPanel } from "./PolicyManagementPanel";
-import type { CredentialType } from "../../types";
+import { DocumentDetailModal } from "../credentials/DocumentDetailModal";
+import { CredentialDetailModal } from "../credentials/CredentialDetailModal";
 
 interface ClinicianOption {
   id: string;
   name: string;
   role: string;
+}
+
+// Friendly labels for known credential types; anything the backend returns
+// that isn't listed here just falls back to a title-cased version of the code.
+const CREDENTIAL_TYPE_LABELS: Record<string, string> = {
+  rn_license: "RN License (Registered Nurse)",
+  md_license: "MD License (Medical Doctor)",
+  dea_registration: "DEA Registration (Controlled Substance)",
+  bls: "BLS (Basic Life Support)",
+  acls: "ACLS (Advanced Cardiac Life Support)",
+  hipaa_training: "HIPAA Training (Annual Security)",
+  vaccination: "Vaccination (Immunization Record)",
+  other: "Other",
+};
+
+// Fallback list shown before a clinician is selected, or if that clinician
+// has no resolved requirements yet (e.g. no policy published for their role/jurisdiction).
+const ALL_CREDENTIAL_TYPES = Object.keys(CREDENTIAL_TYPE_LABELS);
+
+function credentialTypeLabel(type: string): string {
+  return CREDENTIAL_TYPE_LABELS[type] || type.replace(/_/g, " ");
 }
 
 export const DocumentsPage: React.FC = () => {
@@ -23,8 +45,9 @@ export const DocumentsPage: React.FC = () => {
   );
   const [clinicians, setClinicians] = useState<ClinicianOption[]>([]);
   const [selectedClinicianId, setSelectedClinicianId] = useState("");
-  const [credentialType, setCredentialType] =
-    useState<CredentialType>("rn_license");
+  const [credentialType, setCredentialType] = useState("rn_license");
+  const [requiredCredentialTypes, setRequiredCredentialTypes] = useState<string[]>([]);
+  const [loadingRequirements, setLoadingRequirements] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -33,6 +56,8 @@ export const DocumentsPage: React.FC = () => {
   const [reviewQueue, setReviewQueue] = useState<ReviewQueueCheck[]>([]);
   const [isLoadingQueue, setIsLoadingQueue] = useState(true);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [openDocumentId, setOpenDocumentId] = useState<string | null>(null);
+  const [openCredentialId, setOpenCredentialId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -67,6 +92,49 @@ export const DocumentsPage: React.FC = () => {
 
     loadData();
   }, [user]);
+
+  // Load which credential types are actually required for the selected
+  // clinician's role + jurisdiction (the compliance engine already resolves
+  // this server-side) so the Credential Type dropdown only shows relevant options.
+  useEffect(() => {
+    if (!selectedClinicianId) {
+      setRequiredCredentialTypes([]);
+      return;
+    }
+
+    let cancelled = false;
+    async function loadRequiredTypes() {
+      setLoadingRequirements(true);
+      try {
+        const status = await cliniciansApi.getComplianceStatus(selectedClinicianId);
+        const types = Array.from(
+          new Set(
+            (status.findings || [])
+              .map((f) => f.credential_type)
+              .filter((t): t is string => !!t)
+          )
+        );
+        if (!cancelled) setRequiredCredentialTypes(types);
+      } catch {
+        if (!cancelled) setRequiredCredentialTypes([]);
+      } finally {
+        if (!cancelled) setLoadingRequirements(false);
+      }
+    }
+
+    loadRequiredTypes();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedClinicianId]);
+
+  // Keep the selected credential type valid whenever the required-types list changes.
+  useEffect(() => {
+    if (requiredCredentialTypes.length > 0 && !requiredCredentialTypes.includes(credentialType)) {
+      setCredentialType(requiredCredentialTypes[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requiredCredentialTypes]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -116,6 +184,11 @@ export const DocumentsPage: React.FC = () => {
       // Refresh review queue
       const queueData = await documentsApi.getReviewQueue();
       setReviewQueue(queueData.checks || []);
+
+      // Auto-open the document detail modal so the user sees OCR results immediately
+      if (res.document_id) {
+        setOpenDocumentId(res.document_id);
+      }
     } catch (err: any) {
       setUploadError(err.message || "Failed to upload document to backend");
     } finally {
@@ -123,7 +196,7 @@ export const DocumentsPage: React.FC = () => {
     }
   };
 
-  const handleAction = async (id: string, action: "approve" | "rejected") => {
+  const handleAction = async (id: string, action: "approve" | "reject") => {
     try {
       setActionError(null);
       await documentsApi.reviewCheck(id, action);
@@ -235,31 +308,18 @@ export const DocumentsPage: React.FC = () => {
                   <div className="relative">
                     <select
                       value={credentialType}
-                      onChange={(e) =>
-                        setCredentialType(e.target.value as CredentialType)
-                      }
-                      className="w-full appearance-none bg-[#f8f9ff] border border-[#CBD5E1] rounded-lg py-3 px-4 text-sm text-[#0b1c30] focus:outline-none focus:border-[#0a6659] focus:ring-2 focus:ring-[#0a6659]/20 transition-all cursor-pointer pr-10"
+                      onChange={(e) => setCredentialType(e.target.value)}
+                      disabled={loadingRequirements}
+                      className="w-full appearance-none bg-[#f8f9ff] border border-[#CBD5E1] rounded-lg py-3 px-4 text-sm text-[#0b1c30] focus:outline-none focus:border-[#0a6659] focus:ring-2 focus:ring-[#0a6659]/20 transition-all cursor-pointer pr-10 disabled:opacity-60"
                     >
-                      <option value="rn_license">
-                        rn_license (Registered Nurse)
-                      </option>
-                      <option value="md_license">
-                        md_license (Medical Doctor)
-                      </option>
-                      <option value="dea_registration">
-                        dea_registration (Controlled Substance)
-                      </option>
-                      <option value="bls">bls (Basic Life Support)</option>
-                      <option value="acls">
-                        acls (Advanced Cardiac Life Support)
-                      </option>
-                      <option value="hipaa_training">
-                        hipaa_training (Annual Security)
-                      </option>
-                      <option value="vaccination">
-                        vaccination (Immunization Record)
-                      </option>
-                      <option value="other">other</option>
+                      {(requiredCredentialTypes.length > 0
+                        ? requiredCredentialTypes
+                        : ALL_CREDENTIAL_TYPES
+                      ).map((type) => (
+                        <option key={type} value={type}>
+                          {credentialTypeLabel(type)}
+                        </option>
+                      ))}
                     </select>
                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#6f7976]">
                       <span className="material-symbols-outlined text-[20px]">
@@ -267,6 +327,15 @@ export const DocumentsPage: React.FC = () => {
                       </span>
                     </span>
                   </div>
+                  <p className="text-[10px] text-[#6f7976]">
+                    {loadingRequirements
+                      ? "Loading required credential types for this clinician..."
+                      : requiredCredentialTypes.length > 0
+                        ? `Showing ${requiredCredentialTypes.length} type(s) required for this clinician's role & jurisdiction`
+                        : selectedClinicianId
+                          ? "No specific requirements resolved yet — showing all credential types"
+                          : "Select a clinician to see their required credential types"}
+                  </p>
                 </div>
 
                 {/* File Picker */}
@@ -408,7 +477,8 @@ export const DocumentsPage: React.FC = () => {
                       return (
                         <tr
                           key={row.id}
-                          className="hover:bg-[#f8f9ff] transition-colors"
+                          onClick={() => row.document_id && setOpenDocumentId(row.document_id)}
+                          className={`hover:bg-[#f8f9ff] transition-colors ${row.document_id ? "cursor-pointer" : ""}`}
                         >
                           <td className="py-4 px-6 font-medium text-[#0b1c30] whitespace-nowrap">
                             {row.clinician_name ||
@@ -486,13 +556,19 @@ export const DocumentsPage: React.FC = () => {
                           <td className="py-4 px-6 text-right whitespace-nowrap">
                             <div className="flex items-center justify-end gap-2">
                               <button
-                                onClick={() => handleAction(row.id, "approve")}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAction(row.id, "approve");
+                                }}
                                 className="px-3 py-1.5 rounded-lg border border-[#0a6659] text-[#0a6659] hover:bg-[#0a6659] hover:text-white text-xs font-semibold transition-colors cursor-pointer"
                               >
                                 Approve
                               </button>
                               <button
-                                onClick={() => handleAction(row.id, "rejected")}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAction(row.id, "reject");
+                                }}
                                 className="px-3 py-1.5 rounded-lg border border-[#ba1a1a] text-[#ba1a1a] hover:bg-[#ba1a1a] hover:text-white text-xs font-semibold transition-colors cursor-pointer"
                               >
                                 Reject
@@ -508,6 +584,31 @@ export const DocumentsPage: React.FC = () => {
             </div>
           </section>
         </>
+      )}
+
+      {openDocumentId && !openCredentialId && (
+        <DocumentDetailModal
+          documentId={openDocumentId}
+          onClose={() => setOpenDocumentId(null)}
+          onOpenCredential={(credentialId) => {
+            setOpenCredentialId(credentialId);
+          }}
+          onReviewChange={async () => {
+            const queueData = await documentsApi.getReviewQueue();
+            setReviewQueue(queueData.checks || []);
+          }}
+        />
+      )}
+
+      {openCredentialId && (
+        <CredentialDetailModal
+          credentialId={openCredentialId}
+          onClose={() => {
+            setOpenCredentialId(null);
+            setOpenDocumentId(null);
+          }}
+          onBack={openDocumentId ? () => setOpenCredentialId(null) : undefined}
+        />
       )}
     </div>
   );
