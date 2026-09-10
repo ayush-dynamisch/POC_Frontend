@@ -5,6 +5,34 @@ import { isTerminalEvent } from "../types/events";
 
 const API_BASE = "";
 
+// ── Token-refresh infrastructure ──────────────────────────────────────────────
+// Module-level lock so concurrent 401s trigger only one /auth/refresh call.
+let _refreshPromise: Promise<LoginResult> | null = null;
+
+/** True when the stored access-token expires within the next 60 seconds. */
+function isTokenExpiringSoon(): boolean {
+  const expiry = localStorage.getItem("mediverify_token_expiry");
+  if (!expiry) return false;
+  return Date.now() > Number(expiry) - 60_000; // 60-second buffer
+}
+
+/** Endpoints that must never trigger a token refresh (avoid infinite loops). */
+const NO_REFRESH_ENDPOINTS = ["/auth/login", "/auth/refresh"];
+
+// Thrown by apiFetch on a non-ok response. Behaves like a plain Error
+// (`.message` still works for every existing `catch (err: any) { err.message }`
+// call site) but also carries the HTTP status so new code can distinguish,
+// e.g., a 409 conflict from other failures without string-matching on text.
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem("mediverify_token");
   if (token) {
@@ -17,15 +45,32 @@ export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const headers = {
+  const canRefresh = !NO_REFRESH_ENDPOINTS.includes(endpoint);
+
+  // ── Proactive refresh: if the token is about to expire, refresh first ──
+  if (canRefresh && isTokenExpiringSoon()) {
+    if (!_refreshPromise) {
+      _refreshPromise = authApi.refresh().finally(() => {
+        _refreshPromise = null;
+      });
+    }
+    try {
+      await _refreshPromise;
+    } catch {
+      // If proactive refresh fails, proceed anyway — the 401 interceptor
+      // below will catch the actual failure and handle it.
+    }
+  }
+
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...getAuthHeader(),
-    ...(options.headers || {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
 
   // If body is FormData, delete Content-Type so browser sets boundary multipart
   if (options.body instanceof FormData) {
-    delete (headers as Record<string, string>)["Content-Type"];
+    delete headers["Content-Type"];
   }
 
   const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -33,6 +78,26 @@ export async function apiFetch<T>(
     headers,
     credentials: "include",
   });
+
+  // ── 401 Interceptor: attempt silent token refresh & retry ───────────────
+  if (response.status === 401 && canRefresh) {
+    // Deduplicate: if a refresh is already in-flight, wait for it
+    if (!_refreshPromise) {
+      _refreshPromise = authApi.refresh().finally(() => {
+        _refreshPromise = null;
+      });
+    }
+
+    try {
+      await _refreshPromise;
+      // Retry the original request with the fresh token
+      return apiFetch<T>(endpoint, options);
+    } catch {
+      // Refresh itself failed — session is dead
+      window.dispatchEvent(new CustomEvent("auth:expired"));
+      throw new ApiError("Session expired. Please log in again.", 401);
+    }
+  }
 
   if (!response.ok) {
     let errorMsg = `API Error ${response.status}: ${response.statusText}`;
@@ -53,8 +118,9 @@ export async function apiFetch<T>(
     } catch {
       // Ignore json parse error
     }
-    throw new Error(
+    throw new ApiError(
       typeof errorMsg === "string" ? errorMsg : JSON.stringify(errorMsg),
+      response.status,
     );
   }
 
@@ -74,6 +140,7 @@ export interface LoginAccount {
   role: string;
   org_id: string | null;
   name: string | null;
+  org_name: string | null;
 }
 
 export interface LoginResult {
@@ -92,12 +159,60 @@ export const authApi = {
     });
     localStorage.setItem("mediverify_token", data.access_token);
     localStorage.setItem("mediverify_account", JSON.stringify(data.account));
+    // Store refresh-token & computed expiry so we can silently renew later
+    if (data.refresh_token) {
+      localStorage.setItem("mediverify_refresh_token", data.refresh_token);
+    }
+    localStorage.setItem(
+      "mediverify_token_expiry",
+      String(Date.now() + (data.expires_in || 3600) * 1000),
+    );
     return data;
   },
 
   logout() {
     localStorage.removeItem("mediverify_token");
     localStorage.removeItem("mediverify_account");
+    localStorage.removeItem("mediverify_refresh_token");
+    localStorage.removeItem("mediverify_token_expiry");
+  },
+
+  /** Exchange the stored refresh-token for a new access-token pair. */
+  async refresh(): Promise<LoginResult> {
+    const refreshToken = localStorage.getItem("mediverify_refresh_token");
+    if (!refreshToken) {
+      throw new ApiError("No refresh token available", 401);
+    }
+
+    // Use raw fetch to avoid triggering our own 401 interceptor
+    const response = await fetch(`${API_BASE}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      // Refresh token is also expired / invalid — clear everything
+      authApi.logout();
+      throw new ApiError("Refresh token expired", response.status);
+    }
+
+    const data: LoginResult = await response.json();
+
+    // Persist the rotated tokens
+    localStorage.setItem("mediverify_token", data.access_token);
+    if (data.refresh_token) {
+      localStorage.setItem("mediverify_refresh_token", data.refresh_token);
+    }
+    localStorage.setItem(
+      "mediverify_token_expiry",
+      String(Date.now() + (data.expires_in || 3600) * 1000),
+    );
+    if (data.account) {
+      localStorage.setItem("mediverify_account", JSON.stringify(data.account));
+    }
+    return data;
   },
 
   getStoredAccount(): LoginAccount | null {
@@ -118,6 +233,7 @@ export interface DashboardResponse {
     clinician_id: string;
     full_name: string;
     role: string;
+    is_active: boolean | null;
     jurisdiction: string | null;
     summary: {
       compliant: boolean;
@@ -195,21 +311,99 @@ export const cliniciansApi = {
 };
 
 // 4. Credentials Service
+// GET /credentials/{id} and POST /credentials/{id}/reverify have no backend
+// Pydantic schema (ad hoc dicts) — these types are hand-derived from the route source.
+export interface VerificationRecord {
+  id: string;
+  outcome: "match" | "mismatch" | "expired" | "not_found" | "unverifiable";
+  mismatches: {
+    fields?: {
+      field: string;
+      document: string;
+      authority?: string;
+      clinician?: string;
+      source: "authority" | "clinician_record";
+    }[];
+    policy?: {
+      reason: string;
+      authority_status_raw?: string;
+      disallowed?: string[];
+    };
+    narrative?: string;
+    manual_review?: {
+      decision: string;
+      reviewed_by: string;
+      reviewed_at: string;
+      note?: string | null;
+      previous_status: string;
+    };
+  } | null;
+  created_at: string;
+}
+
+export interface ExternalVerificationRecord {
+  id: string;
+  source: string;
+  authority_status: string;
+  authority_status_raw: string | null;
+  degraded: boolean;
+  fetched_at: string;
+}
+
+export interface CredentialDetail {
+  id: string;
+  credential_type: string;
+  status: string;
+  authority_status: string;
+  authority_checked_at: string | null;
+  identifier: string | null;
+  holder_name: string | null;
+  jurisdiction: string | null;
+  issued_on: string | null;
+  expires_on: string | null;
+  effective_expires_on: string | null;
+  verifications: VerificationRecord[];
+  external_verifications: ExternalVerificationRecord[];
+}
+
 export const credentialsApi = {
+  async getCredential(credentialId: string): Promise<CredentialDetail> {
+    return apiFetch<CredentialDetail>(`/credentials/${credentialId}`);
+  },
+
   async reverify(credentialId: string): Promise<any> {
     return apiFetch<any>(`/credentials/${credentialId}/reverify`, {
       method: "POST",
     });
   },
 
+  // Reverify can resolve inline (full credential shape + job_id) or kick off a
+  // background job ({job_id, credential_id, status:"verifying"}) depending on
+  // backend config. Either way, the job's own completion payload is
+  // deliberately PHI-stripped, so we always finish with a fresh GET rather
+  // than trusting its contents.
+  async reverifyAndRefresh(credentialId: string): Promise<CredentialDetail> {
+    const res = await credentialsApi.reverify(credentialId);
+    if (res?.status === "verifying" && res?.job_id) {
+      await jobsApi.streamJob(res.job_id, { onEvent: () => {} });
+    }
+    return credentialsApi.getCredential(credentialId);
+  },
+
   async review(
     credentialId: string,
-    decision: "approved" | "rejected",
+    decision: "approve" | "reject" | "approved" | "rejected",
     note?: string,
   ): Promise<any> {
+    const normalizedDecision =
+      decision === "approved"
+        ? "approve"
+        : decision === "rejected"
+          ? "reject"
+          : decision;
     return apiFetch<any>(`/credentials/${credentialId}/review`, {
       method: "POST",
-      body: JSON.stringify({ decision, note }),
+      body: JSON.stringify({ decision: normalizedDecision, note }),
     });
   },
 };
@@ -228,6 +422,50 @@ export interface ReviewQueueCheck {
   confidence_score?: number;
   created_at?: string;
   submitted_ago?: string;
+}
+
+// GET /documents/{id} has no backend Pydantic response_model export beyond
+// the route's own DocumentDetailResponse — typed by hand here to match it.
+export interface DocumentCheckSummary {
+  id: string;
+  check_type: string;
+  passed: boolean | null;
+  confidence: number | null;
+  review_status: "not_required" | "pending" | "approved" | "rejected";
+  details: Record<string, any> | null;
+}
+
+export interface DocumentCredentialSummary {
+  id: string;
+  credential_type: string;
+  status: string;
+  identifier: string | null;
+  holder_name: string | null;
+  jurisdiction: string | null;
+  issued_on: string | null;
+  expires_on: string | null;
+  effective_expires_on: string | null;
+}
+
+export interface DocumentDetail {
+  id: string;
+  status: string;
+  document_type: string;
+  credential_type: string | null;
+  ocr: {
+    // Note: raw_text and ocr_job_id live nested inside extracted_fields on
+    // the backend, not as siblings — mirrored here rather than flattened,
+    // since flattening would silently diverge from the real response shape.
+    extracted_fields: {
+      fields?: Record<string, any>;
+      raw_text?: string;
+      ocr_job_id?: string;
+    } | null;
+    confidence: number | null;
+    model: string | null;
+  } | null;
+  checks: DocumentCheckSummary[];
+  credential: DocumentCredentialSummary | null;
 }
 
 export const documentsApi = {
@@ -262,9 +500,14 @@ export const documentsApi = {
     );
   },
 
+  async getDocument(documentId: string): Promise<DocumentDetail> {
+    return apiFetch<DocumentDetail>(`/documents/${documentId}`);
+  },
+
+  // Backend schema is Literal["approve", "reject"] (app/api/schemas/document.py).
   async reviewCheck(
     checkId: string,
-    decision: "approve" | "rejected",
+    decision: "approve" | "reject",
     note?: string,
   ): Promise<any> {
     return apiFetch(`/document-checks/${checkId}/review`, {
@@ -410,13 +653,21 @@ export const chatApi = {
 
 // 7. Reports Service
 export interface BackendReport {
-  id: string;
-  title: string;
+  // The list endpoint (GET /reports) and the detail endpoint (GET /reports/{id})
+  // don't share one response_model on the backend — the detail response actually
+  // comes back as { report_id, status, scope, clinician_id, format, text, meta },
+  // with no `id`/`title`/`body`/`summary`. Both id fields and both body fields
+  // are kept optional here so either shape is handled without runtime errors.
+  id?: string;
+  report_id?: string;
+  title?: string;
   scope: string;
   status: string;
   clinician_id?: string;
   organization_id?: string;
-  created_at: string;
+  created_at?: string;
+  format?: string;
+  text?: string;
   body?: string;
   summary?: string;
   approved_by?: string;
@@ -648,6 +899,23 @@ export const teamApi = {
       method: "POST",
       body: JSON.stringify({ users }),
     });
+  },
+
+  // One-shot "invite this clinician to the self-service portal" action — not a
+  // toggle. Throws an ApiError with status 409 if the clinician already has a
+  // login; there is no revoke/deactivate endpoint on the backend.
+  async grantClinicianAccess(
+    orgId: string,
+    clinicianId: string,
+    email?: string,
+  ): Promise<ClinicianCreateResult> {
+    return apiFetch<ClinicianCreateResult>(
+      `/organizations/${orgId}/clinicians/${clinicianId}/grant-access`,
+      {
+        method: "POST",
+        body: JSON.stringify({ email: email || undefined }),
+      },
+    );
   },
 };
 

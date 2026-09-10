@@ -1,6 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { reportsApi, type BackendReport } from '../../services/api';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { reportsApi, dashboardApi, type BackendReport } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+
+// Tailwind overrides so Markdown output (headings, lists, links, etc.) matches
+// this page's existing look instead of the browser's default prose styling.
+const markdownComponents = {
+  p: ({ children }: any) => <p className="text-sm text-[#0b1c30] leading-relaxed mb-3 last:mb-0">{children}</p>,
+  strong: ({ children }: any) => <strong className="font-bold text-[#0b1c30]">{children}</strong>,
+  em: ({ children }: any) => <em className="italic">{children}</em>,
+  h1: ({ children }: any) => <h1 className="font-heading font-bold text-lg text-[#0b1c30] mt-4 mb-2 first:mt-0">{children}</h1>,
+  h2: ({ children }: any) => <h2 className="font-heading font-bold text-base text-[#0b1c30] mt-4 mb-2 first:mt-0">{children}</h2>,
+  h3: ({ children }: any) => <h3 className="font-heading font-bold text-sm text-[#0b1c30] mt-3 mb-1.5 first:mt-0">{children}</h3>,
+  ul: ({ children }: any) => <ul className="list-disc pl-5 space-y-1 text-sm text-[#0b1c30] mb-3">{children}</ul>,
+  ol: ({ children }: any) => <ol className="list-decimal pl-5 space-y-1 text-sm text-[#0b1c30] mb-3">{children}</ol>,
+  li: ({ children }: any) => <li className="leading-relaxed">{children}</li>,
+  a: ({ children, href }: any) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-[#0a6659] font-semibold hover:underline">
+      {children}
+    </a>
+  ),
+  code: ({ children }: any) => <code className="px-1 py-0.5 bg-[#eff4ff] rounded text-[11px] font-mono text-[#0b1c30]">{children}</code>,
+  blockquote: ({ children }: any) => (
+    <blockquote className="border-l-4 border-[#CBD5E1] pl-3 text-[#57605f] italic mb-3">{children}</blockquote>
+  ),
+  table: ({ children }: any) => (
+    <div className="overflow-x-auto mb-3">
+      <table className="w-full text-left border-collapse text-xs border border-[#E2E8F0] rounded-lg overflow-hidden">{children}</table>
+    </div>
+  ),
+  th: ({ children }: any) => <th className="py-2 px-3 bg-[#eff4ff]/60 font-semibold text-[#57605f] border-b border-[#E2E8F0]">{children}</th>,
+  td: ({ children }: any) => <td className="py-2 px-3 border-b border-[#E2E8F0] text-[#0b1c30]">{children}</td>,
+};
 
 export const ReportsPage: React.FC = () => {
   const [reports, setReports] = useState<BackendReport[]>([]);
@@ -12,7 +45,9 @@ export const ReportsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [clinicianNames, setClinicianNames] = useState<Record<string, string>>({});
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Load reports from backend
   const fetchReports = async () => {
@@ -23,8 +58,10 @@ export const ReportsPage: React.FC = () => {
       );
       setReports(res.reports || []);
       if (res.reports && res.reports.length > 0) {
-        if (!selectedReportId || !res.reports.some((r) => r.id === selectedReportId)) {
-          setSelectedReportId(res.reports[0].id);
+        const stillExists = res.reports.some((r) => (r.id || r.report_id) === selectedReportId);
+        if (!selectedReportId || !stillExists) {
+          const first = res.reports[0];
+          setSelectedReportId(first.id || first.report_id || null);
         }
       } else {
         setSelectedReportId(null);
@@ -40,6 +77,21 @@ export const ReportsPage: React.FC = () => {
   useEffect(() => {
     fetchReports();
   }, [statusFilter]);
+
+  // Load the org roster once so report clinician_ids can be resolved to a display name.
+  useEffect(() => {
+    if (!user?.orgId) return;
+    dashboardApi
+      .getDashboard(user.orgId)
+      .then((res) => {
+        const names: Record<string, string> = {};
+        for (const c of res.clinicians || []) {
+          names[c.clinician_id] = c.full_name;
+        }
+        setClinicianNames(names);
+      })
+      .catch((err) => console.error('Failed to load clinician roster:', err));
+  }, [user?.orgId]);
 
   // Load detailed report when selectedReportId changes
   useEffect(() => {
@@ -162,14 +214,15 @@ export const ReportsPage: React.FC = () => {
             </div>
           ) : (
             reports.map((report) => {
-              const isSelected = report.id === selectedReportId;
+              const reportKey = report.id || report.report_id || '';
+              const isSelected = reportKey === selectedReportId;
               const isApproved = report.status === 'approved';
               const isPending = report.status === 'pending_approval';
 
               return (
                 <div
-                  key={report.id}
-                  onClick={() => setSelectedReportId(report.id)}
+                  key={reportKey}
+                  onClick={() => setSelectedReportId(reportKey)}
                   className={`p-4 cursor-pointer transition-colors border-l-4 ${
                     isSelected
                       ? 'bg-[#eff4ff] border-[#0a6659]'
@@ -178,7 +231,7 @@ export const ReportsPage: React.FC = () => {
                 >
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <h3 className="text-xs font-bold text-[#0b1c30] truncate">
-                      {report.title || `Report ${report.id.substring(0, 8)}`}
+                      {report.title || `Report ${reportKey.substring(0, 8)}`}
                     </h3>
                     <span
                       className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
@@ -207,7 +260,7 @@ export const ReportsPage: React.FC = () => {
                           })
                         : 'Recent'}
                     </span>
-                    <span className="font-mono text-[10px]">{report.id.substring(0, 8)}...</span>
+                    <span className="font-mono text-[10px]">{reportKey.substring(0, 8)}...</span>
                   </div>
                 </div>
               );
@@ -240,7 +293,7 @@ export const ReportsPage: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-xs text-[#57605f] mt-1">
-                  Report ID: {selectedReportDetail.id} • Created{' '}
+                  Report ID: {selectedReportDetail.id || selectedReportDetail.report_id} • Created{' '}
                   {selectedReportDetail.created_at ? new Date(selectedReportDetail.created_at).toLocaleString() : 'Recently'}
                 </p>
               </div>
@@ -294,10 +347,13 @@ export const ReportsPage: React.FC = () => {
                   </div>
 
                   {/* Body Text */}
-                  <div className="text-sm text-[#0b1c30] leading-relaxed whitespace-pre-wrap">
-                    {selectedReportDetail.body ||
-                      selectedReportDetail.summary ||
-                      'This report summarizes credential compliance across verified state boards and hospital policy documents. All evaluated clinicians meet active licensing standards, with zero unresolved unencumbered status gaps.'}
+                  <div>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                      {selectedReportDetail.text ||
+                        selectedReportDetail.body ||
+                        selectedReportDetail.summary ||
+                        'This report summarizes credential compliance across verified state boards and hospital policy documents. All evaluated clinicians meet active licensing standards, with zero unresolved unencumbered status gaps.'}
+                    </ReactMarkdown>
                   </div>
 
                   {/* Metadata Box */}
@@ -320,6 +376,19 @@ export const ReportsPage: React.FC = () => {
                         {selectedReportDetail.approved_by ? 'Signed by Compliance Officer' : 'Awaiting Approval'}
                       </p>
                     </div>
+                    {selectedReportDetail.clinician_id && (
+                      <div>
+                        <span className="text-[#6f7976]">Clinician</span>
+                        <p className="mt-0.5">
+                          <button
+                            onClick={() => navigate(`/clinicians?id=${selectedReportDetail.clinician_id}`)}
+                            className="font-semibold text-[#0a6659] hover:underline cursor-pointer text-left"
+                          >
+                            {clinicianNames[selectedReportDetail.clinician_id] || selectedReportDetail.clinician_id}
+                          </button>
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
