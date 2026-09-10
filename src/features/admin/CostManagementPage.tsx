@@ -6,6 +6,7 @@ import {
   type AgentRunRow,
   type AgentRunsSummary,
 } from '../../services/api';
+import { hasScope } from '../../auth/scopes';
 import {
   avg,
   deltaPct,
@@ -53,7 +54,9 @@ export const CostManagementPage: React.FC = () => {
   const [domainFilter, setDomainFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const isSuperAdmin = user?.role === 'super_admin';
+  // /agent-runs is gated on audit_logs:read — super_admin, admin and
+  // compliance_officer, not super_admin alone.
+  const canReadAuditLogs = hasScope(user?.role, 'audit_logs:read');
   const activeWindow = WINDOWS.find((w) => w.key === windowKey)!;
 
   useEffect(() => {
@@ -62,10 +65,10 @@ export const CostManagementPage: React.FC = () => {
       navigate('/login');
       return;
     }
-    // `audit_logs:read` is a super-admin scope; anyone else would get a 403,
-    // so don't spend the request. Nothing below the role notice renders for
-    // them either, so the loading flag is never read on this path.
-    if (!isSuperAdmin) return;
+    // Anyone without audit_logs:read would get a 403, so don't spend the
+    // request. Nothing below the role notice renders for them either, so the
+    // loading flag is never read on this path.
+    if (!canReadAuditLogs) return;
 
     let cancelled = false;
 
@@ -112,7 +115,7 @@ export const CostManagementPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [user, authLoading, isSuperAdmin, activeWindow, navigate, reloadKey]);
+  }, [user, authLoading, canReadAuditLogs, activeWindow, navigate, reloadKey]);
 
   const totalMicros = toMicros(summary?.total.cost_usd);
   const totalRuns = summary?.total.runs ?? 0;
@@ -193,12 +196,12 @@ export const CostManagementPage: React.FC = () => {
       </div>
 
       {/* Role notice */}
-      {!isSuperAdmin && (
+      {!canReadAuditLogs && (
         <div className="p-4 bg-[#eff4ff] border border-[#d3e4fe] rounded-xl flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 text-xs text-[#0b1c30]">
             <span className="material-symbols-outlined text-[#0a6659] text-[20px]">admin_panel_settings</span>
             <span>
-              Platform-wide spend requires the <strong>Super Admin</strong> role (<code className="bg-white px-1.5 py-0.5 rounded border border-[#CBD5E1]">audit_logs:read</code>). Other roles see only their own organization.
+              Agent spend requires <code className="bg-white px-1.5 py-0.5 rounded border border-[#CBD5E1]">audit_logs:read</code> — held by Super Admin, Org Admin and Compliance Officer.
             </span>
           </div>
           <button
@@ -223,7 +226,7 @@ export const CostManagementPage: React.FC = () => {
         </div>
       )}
 
-      {isSuperAdmin && (
+      {canReadAuditLogs && (
         <>
           {/* What the totals exclude — so they aren't mistaken for an invoice */}
           <div className="p-3.5 bg-white border border-[#E2E8F0] rounded-xl flex items-start gap-2.5 text-xs text-[#57605f]">

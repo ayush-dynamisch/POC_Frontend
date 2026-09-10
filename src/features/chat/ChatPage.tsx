@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { chatApi, type BackendConversation } from "../../services/api";
-import { useJobStream } from "../../hooks/useJobStream";
-import { STEP_LABELS } from "../../types/events";
-import type { ChatMessage, Citation } from "../../types";
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { chatApi, type BackendConversation } from '../../services/api';
+import { useJobStream } from '../../hooks/useJobStream';
+import { useAuth } from '../../context/AuthContext';
+import { hasScope } from '../../auth/scopes';
+import { STEP_LABELS } from '../../types/events';
+import type { ChatMessage, Citation } from '../../types';
 
 // Maps a raw backend citation (string or dict — shape varies by kind: RAG/D1
 // policy hits carry source/reference/confidence, registry & compliance-finding
@@ -38,6 +40,8 @@ function mapCitation(c: any, fallbackTitle = "Citation"): Citation {
 }
 
 export const ChatPage: React.FC = () => {
+  const { user } = useAuth();
+  const canDraftReports = hasScope(user?.role, 'compliance:report');
   const [conversations, setConversations] = useState<BackendConversation[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -368,9 +372,13 @@ export const ChatPage: React.FC = () => {
 
               <div className="grid grid-cols-1 gap-2 w-full pt-2">
                 {[
-                  "Show all clinicians in California with expiring credentials",
-                  "What are the mandatory requirements for RN licenses in Org 1?",
-                  "Draft a compliance report for clinicians with missing background checks",
+                  'Show all clinicians in California with expiring credentials',
+                  'What are the mandatory requirements for RN licenses in Org 1?',
+                  // The orchestrator's authorize node refuses a report flow
+                  // without compliance:report, so don't suggest one.
+                  ...(canDraftReports
+                    ? ['Draft a compliance report for clinicians with missing background checks']
+                    : [])
                 ].map((prompt, idx) => (
                   <button
                     key={idx}

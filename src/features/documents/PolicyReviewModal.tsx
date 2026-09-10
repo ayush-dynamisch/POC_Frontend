@@ -15,6 +15,7 @@ const STATUS_BADGE: Record<ProposedRequirement['status'], string> = {
 
 export const PolicyReviewModal: React.FC<PolicyReviewModalProps> = ({ policyDocumentId, onClose, onPublished }) => {
   const [title, setTitle] = useState('');
+  const [policyStatus, setPolicyStatus] = useState<string>('');
   const [requirements, setRequirements] = useState<ProposedRequirement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -31,6 +32,7 @@ export const PolicyReviewModal: React.FC<PolicyReviewModalProps> = ({ policyDocu
         const review = await policiesApi.getReview(policyDocumentId);
         if (cancelled) return;
         setTitle(review.title);
+        setPolicyStatus(review.status);
         setRequirements(review.requirements || []);
       } catch (err: any) {
         if (!cancelled) setLoadError(err.message || 'Failed to load proposed requirements');
@@ -66,15 +68,25 @@ export const PolicyReviewModal: React.FC<PolicyReviewModalProps> = ({ policyDocu
     }
   };
 
-  const pendingCount = requirements.filter((r) => r.status === 'pending').length;
+  const isDraft = policyStatus === 'draft';
+  const countOf = (status: ProposedRequirement['status']) =>
+    requirements.filter((r) => r.status === status).length;
+  const pendingCount = countOf('pending');
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl max-w-3xl w-full max-h-[85vh] p-6 md:p-8 shadow-xl border border-[#CBD5E1] flex flex-col">
         <div className="flex items-start justify-between gap-3 mb-4 shrink-0">
           <div>
-            <h3 className="font-heading font-bold text-lg text-[#0b1c30]">Review Requirements</h3>
+            <h3 className="font-heading font-bold text-lg text-[#0b1c30]">
+              {isDraft ? 'Review Requirements' : 'Policy Requirements'}
+            </h3>
             <p className="text-xs text-[#57605f] mt-0.5">{title || policyDocumentId}</p>
+            {requirements.length > 0 && (
+              <p className="text-[11px] text-[#6f7976] mt-1">
+                {countOf('active')} active · {pendingCount} pending · {countOf('rejected')} rejected
+              </p>
+            )}
           </div>
           <button onClick={onClose} className="text-[#6f7976] hover:text-[#0b1c30] cursor-pointer shrink-0">
             <span className="material-symbols-outlined text-[20px]">close</span>
@@ -135,7 +147,7 @@ export const PolicyReviewModal: React.FC<PolicyReviewModalProps> = ({ policyDocu
           </div>
         )}
 
-        {pendingCount > 0 && (
+        {isDraft && pendingCount > 0 && (
           <div className="mt-4 pt-4 border-t border-[#E2E8F0] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
             <p className="text-xs text-[#57605f]">{pendingCount} requirement(s) pending a decision.</p>
             <div className="flex items-center gap-2">

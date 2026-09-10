@@ -50,6 +50,7 @@ export interface User {
   avatarUrl?: string;
   organizationName: string;
   orgId?: string;
+  clinicianId?: string;
 }
 
 export interface Credential {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, ROLE_ACCOUNTS } from '../../context/AuthContext';
+import { sessionExpired } from '../../services/api';
 import type { Role } from '../../types';
 
 export const LoginPage: React.FC = () => {
@@ -9,7 +10,10 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Reuses the existing error banner to say why they landed back here.
+  const [errorMessage, setErrorMessage] = useState<string | null>(
+    sessionExpired.get() ? 'Your session has expired. Please sign in again.' : null
+  );
   const { login } = useAuth();
   const navigate = useNavigate();
 

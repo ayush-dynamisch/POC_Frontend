@@ -24,5 +24,10 @@
     "outDir": ".tmp-test",
     "noEmit": false
   },
-  "include": ["src/features/admin/costMath.ts", "src/features/admin/costMath.test.ts"]
+  "include": [
+    "src/features/admin/costMath.ts",
+    "src/features/admin/costMath.test.ts",
+    "src/auth/scopes.ts",
+    "src/auth/scopes.test.ts"
+  ]
 }
