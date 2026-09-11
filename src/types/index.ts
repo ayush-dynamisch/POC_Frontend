@@ -115,12 +115,22 @@ export interface Citation {
   degraded?: boolean;
 }
 
+/** One option offered when a name matched more than one clinician. */
+export interface ClinicianCandidate {
+  id: string;
+  full_name: string;
+  role?: string | null;
+  jurisdiction?: string | null;
+}
+
 export interface ChatMessage {
   id: string;
   sender: 'user' | 'assistant';
   content: string;
   timestamp: string;
   citations?: Citation[];
+  /** Set when the turn asked which clinician was meant; rendered as choices. */
+  candidates?: ClinicianCandidate[];
   reasoningPath?: string;
   reportCard?: {
     id: string;

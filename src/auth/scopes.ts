@@ -15,10 +15,13 @@ export type Scope =
   | "credentials:verify"
   | "compliance:read"
   | "compliance:report"
+  | "compliance:approve"
   | "audit_logs:read";
 
 const ROLE_SCOPES: Record<Role, Scope[]> = {
   super_admin: ["audit_logs:read"],
+  // Drafts reports and manages policy, but may not sign one off:
+  // releasing is compliance:approve, held by the compliance officer alone.
   admin: [
     "users:create",
     "documents:update",
@@ -32,6 +35,7 @@ const ROLE_SCOPES: Record<Role, Scope[]> = {
     "credentials:verify",
     "compliance:read",
     "compliance:report",
+    "compliance:approve",
     "audit_logs:read",
   ],
   // users:create is granted in scopes.py but POST /organizations/{id}/users

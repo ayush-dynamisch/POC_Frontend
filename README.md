@@ -1,3 +1,12 @@
+# MediVerify AI — frontend
+
+**Setting this up? Read [RUNNING.md](RUNNING.md)** — how to start the backend,
+seed it, log in, and test each flow end to end.
+
+The rest of this file is the stock Vite template README.
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.

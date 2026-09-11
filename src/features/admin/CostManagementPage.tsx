@@ -38,7 +38,7 @@ function sinceIso(days: number | null): string | undefined {
 }
 
 export const CostManagementPage: React.FC = () => {
-  const { user, switchRole, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   const [windowKey, setWindowKey] = useState<WindowKey>('30d');
@@ -197,19 +197,11 @@ export const CostManagementPage: React.FC = () => {
 
       {/* Role notice */}
       {!canReadAuditLogs && (
-        <div className="p-4 bg-[#eff4ff] border border-[#d3e4fe] rounded-xl flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5 text-xs text-[#0b1c30]">
-            <span className="material-symbols-outlined text-[#0a6659] text-[20px]">admin_panel_settings</span>
-            <span>
-              Agent spend requires <code className="bg-white px-1.5 py-0.5 rounded border border-[#CBD5E1]">audit_logs:read</code> — held by Super Admin, Org Admin and Compliance Officer.
-            </span>
-          </div>
-          <button
-            onClick={() => switchRole('super_admin')}
-            className="px-3 py-1.5 bg-[#0a6659] hover:bg-[#004c42] text-white text-xs font-semibold rounded-lg transition-colors shrink-0 cursor-pointer"
-          >
-            Switch to Super Admin
-          </button>
+        <div className="p-4 bg-[#eff4ff] border border-[#d3e4fe] rounded-xl flex items-center gap-2.5 text-xs text-[#0b1c30]">
+          <span className="material-symbols-outlined text-[#0a6659] text-[20px]">admin_panel_settings</span>
+          <span>
+            Agent spend requires <code className="bg-white px-1.5 py-0.5 rounded border border-[#CBD5E1]">audit_logs:read</code> — held by Super Admin, Org Admin and Compliance Officer.
+          </span>
         </div>
       )}
 

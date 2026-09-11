@@ -91,7 +91,7 @@ export const ReportsPage: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    const canApprove = hasScope(user?.role, "compliance:report");
+    const canApprove = hasScope(user?.role, "compliance:approve");
     const [reports, setReports] = useState<BackendReport[]>([]);
     const [selectedReportId, setSelectedReportId] = useState<string | null>(
         null,
@@ -502,9 +502,20 @@ export const ReportsPage: React.FC = () => {
                                             </span>
                                             <p className="font-semibold text-[#0b1c30] mt-0.5">
                                                 {selectedReportDetail.approved_by
-                                                    ? "Signed by Compliance Officer"
+                                                    ? `Signed by ${
+                                                          selectedReportDetail.approved_by_name ||
+                                                          "a compliance officer"
+                                                      }`
                                                     : "Awaiting Approval"}
                                             </p>
+                                            {selectedReportDetail.approved_by_role && (
+                                                <p className="text-[11px] text-[#6f7976] capitalize mt-0.5">
+                                                    {selectedReportDetail.approved_by_role.replace(
+                                                        /_/g,
+                                                        " ",
+                                                    )}
+                                                </p>
+                                            )}
                                         </div>
                                         {selectedReportDetail.clinician_id && (
                                             <div>

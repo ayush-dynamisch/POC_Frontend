@@ -7,6 +7,9 @@ import { hasScope } from '../../auth/scopes';
 import { STEP_LABELS } from '../../types/events';
 import type { ChatMessage, Citation } from '../../types';
 
+const titleize = (s: string) =>
+  s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
 // Maps a raw backend citation (string or dict — shape varies by kind: RAG/D1
 // policy hits carry source/reference/confidence, registry & compliance-finding
 // citations add an explanatory text/degraded flag) into the full Citation type,
@@ -134,18 +137,20 @@ export const ChatPage: React.FC = () => {
     }
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputPrompt.trim() || isProcessing) return;
-
-    const userText = inputPrompt.trim();
-    setInputPrompt("");
+  /**
+   * `displayText` exists for the disambiguation buttons: the orchestrator
+   * resolves a clinician from the id, but an id is not what the transcript
+   * should read back as.
+   */
+  const send = async (text: string, displayText?: string) => {
+    const userText = text.trim();
+    if (!userText || isProcessing) return;
     setError(null);
 
     const userMsg: ChatMessage = {
       id: `msg_u_${Date.now()}`,
       sender: "user",
-      content: userText,
+      content: displayText ?? userText,
       timestamp: "Just now",
     };
 
@@ -171,6 +176,7 @@ export const ChatPage: React.FC = () => {
           content: response.answer,
           timestamp: "Just now",
           citations: (response.citations || []).map((c: any) => mapCitation(c)),
+          candidates: response.candidates || [],
           reasoningPath: response.plan
             ? `Plan: ${response.plan.join(" → ")}`
             : undefined,
@@ -198,6 +204,7 @@ export const ChatPage: React.FC = () => {
             content: output.answer || "Execution completed.",
             timestamp: "Just now",
             citations: (output.citations || []).map((c: any) => mapCitation(c)),
+            candidates: output.candidates || [],
             reasoningPath: output.plan
               ? `Plan: ${output.plan.join(" → ")}`
               : undefined,
@@ -246,6 +253,14 @@ export const ChatPage: React.FC = () => {
       setError(err.message || "Failed to send message");
       setIsProcessing(false);
     }
+  };
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = inputPrompt.trim();
+    if (!text) return;
+    setInputPrompt("");
+    void send(text);
   };
 
   const activeTitle =
@@ -458,6 +473,40 @@ export const ChatPage: React.FC = () => {
                             <span>{c.title}</span>
                           </button>
                         ))}
+                      </div>
+                    )}
+
+                    {/* An ambiguous name gets choices, not another round of free text. */}
+                    {msg.candidates && msg.candidates.length > 1 && (
+                      <div className="mt-2 pt-3 border-t border-[#E2E8F0]">
+                        <p className="mb-2 text-xs text-[#57605f]">
+                          Which one did you mean?
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {msg.candidates.map((candidate) => {
+                            const label =
+                              `${candidate.full_name}` +
+                              (candidate.role
+                                ? ` - ${titleize(candidate.role)}`
+                                : "") +
+                              ` (ID: ${candidate.id.slice(0, 8)}` +
+                              (candidate.jurisdiction
+                                ? `, ${candidate.jurisdiction}`
+                                : "") +
+                              ")";
+                            return (
+                              <button
+                                key={candidate.id}
+                                type="button"
+                                disabled={isProcessing}
+                                onClick={() => send(candidate.id, label)}
+                                className="px-3 py-1.5 rounded-lg border border-[#CBD5E1] bg-white hover:bg-[#eff4ff] hover:border-[#0a6659]/40 disabled:opacity-50 text-[11px] font-medium text-[#0b1c30] transition-colors cursor-pointer"
+                              >
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
 

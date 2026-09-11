@@ -4,7 +4,7 @@ import { adminApi } from '../../services/api';
 import type { OrganizationOnboardData } from '../../types';
 
 export const OnboardOrgPage: React.FC = () => {
-  const { user, switchRole } = useAuth();
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState<OrganizationOnboardData>({
     orgName: 'Bay Area Health System',
@@ -84,24 +84,6 @@ export const OnboardOrgPage: React.FC = () => {
           Creates the organization tenant workspace and the primary administrator account in the backend database.
         </p>
       </div>
-
-      {/* Role Notice if not Super Admin */}
-      {!isSuperAdmin && (
-        <div className="p-4 bg-[#eff4ff] border border-[#d3e4fe] rounded-xl flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5 text-xs text-[#0b1c30]">
-            <span className="material-symbols-outlined text-[#0a6659] text-[20px]">admin_panel_settings</span>
-            <span>
-              This route requires the <strong>Super Admin</strong> role (<code className="bg-white px-1.5 py-0.5 rounded border border-[#CBD5E1]">organizations:update</code>).
-            </span>
-          </div>
-          <button
-            onClick={() => switchRole('super_admin')}
-            className="px-3 py-1.5 bg-[#0a6659] hover:bg-[#004c42] text-white text-xs font-semibold rounded-lg transition-colors shrink-0 cursor-pointer"
-          >
-            Switch to Super Admin
-          </button>
-        </div>
-      )}
 
       {errorMessage && (
         <div className="p-4 bg-[#ffdad6] border border-[#ba1a1a] text-[#ba1a1a] rounded-xl flex items-center gap-3 text-sm">

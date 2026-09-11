@@ -722,6 +722,9 @@ export interface BackendReport {
     body?: string;
     summary?: string;
     approved_by?: string;
+    /** Who signed it, resolved to a person server-side. Detail endpoint only. */
+    approved_by_name?: string | null;
+    approved_by_role?: string | null;
     approved_at?: string;
 }
 

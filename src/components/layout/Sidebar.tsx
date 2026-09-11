@@ -1,35 +1,14 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { navItemsFor } from '../../auth/routeAccess';
 
 export const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const navItems = [
-    { to: '/', label: 'Dashboard', icon: 'dashboard', roles: ['admin', 'compliance_officer', 'hr'] },
-    { to: '/clinicians', label: 'Clinicians', icon: 'medical_information', roles: ['admin', 'compliance_officer', 'hr', 'clinician'] },
-    { to: '/documents', label: 'Documents', icon: 'description', roles: ['admin', 'compliance_officer', 'hr', 'clinician'] },
-    { to: '/chat', label: 'AI Chat', icon: 'forum', roles: ['admin', 'compliance_officer', 'hr', 'clinician', 'super_admin'] },
-    { to: '/reports', label: 'Reports', icon: 'analytics', roles: ['admin', 'compliance_officer', 'hr', 'clinician'] },
-    {
-      to: '/onboardOrg',
-      label: 'Onboard Org',
-      icon: 'corporate_fare',
-      roles: ['super_admin'],
-      isSpecial: true
-    },
-    {
-      to: '/costManagement',
-      label: 'Cost Management',
-      icon: 'payments',
-      roles: ['super_admin'],
-      isSpecial: true
-    }
-  ];
-
-  const visibleNavItems = navItems.filter((item) => !!user?.role && item.roles.includes(user.role));
+  const visibleNavItems = navItemsFor(user?.role);
 
   return (
     <aside className="w-[260px] bg-[#0a6659] text-white flex-shrink-0 flex flex-col justify-between hidden md:flex h-full border-r border-[#005046] shadow-md select-none">
